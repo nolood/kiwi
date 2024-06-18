@@ -1,0 +1,7 @@
+env: "local"
+storage:
+  host: "localhost"
+  port: 5443
+  user: "postgres"
+  password: "1234"
+  dbname: "pets"
