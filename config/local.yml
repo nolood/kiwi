@@ -4,4 +4,4 @@ storage:
   port: 5443
   user: "postgres"
   password: "1234"
-  dbname: "pets"
+  dbname: "kiwi"
