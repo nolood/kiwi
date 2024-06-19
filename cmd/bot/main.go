@@ -1,30 +1,30 @@
 package main
 
 import (
-	"fmt"
+	"kiwi/internal/app"
 	"kiwi/internal/config"
-	"kiwi/internal/storage/postgres"
-
-	"kiwi/.gen/kiwi/public/model"
-	. "kiwi/.gen/kiwi/public/table"
-
-	. "github.com/go-jet/jet/v2/postgres"
+	"kiwi/internal/lib/logger"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
 
 	cfg := config.MustLoad()
 
-	// log := logger.New(cfg.Env)
+	log := logger.New(cfg.Env)
 
-	storage := postgres.New(cfg.Storage)
+	application := app.New(log, cfg)
 
-	var users []model.Users
+	go application.Bot.MustRun()
 
-	stmt := SELECT(Users.ID).FROM(Users)
+	stop := make(chan os.Signal, 1)
 
-	stmt.Query(storage.Db, &users)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
 
-	fmt.Println(users)
+	<-stop
+	application.Bot.Stop()
 
+	log.Info("App stopped")
 }
