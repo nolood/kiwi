@@ -1,51 +1,46 @@
 package bot
 
 import (
-	"fmt"
+	"kiwi/internal/app/bot/handlers"
 	"kiwi/internal/config"
-	"os"
 
 	"github.com/mymmrac/telego"
-	tu "github.com/mymmrac/telego/telegoutil"
+	"go.uber.org/zap"
 )
 
 type BotApp struct {
-	cfg config.Telegram
-	Bot *telego.Bot
+	log     *zap.Logger
+	cfg     config.Telegram
+	Updates <-chan telego.Update
+	Bot     *telego.Bot
 }
 
-func New(cfg config.Telegram) *BotApp {
+func New(log *zap.Logger, cfg config.Telegram) *BotApp {
+	const op = "bot.New"
+
 	bot, err := telego.NewBot(cfg.Token, telego.WithDefaultDebugLogger())
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Panic(op, zap.Error(err))
 	}
 
 	return &BotApp{
+		log: log,
 		cfg: cfg,
 		Bot: bot,
 	}
 }
 
 func (b *BotApp) MustRun() {
-	updates, _ := b.Bot.UpdatesViaLongPolling(nil)
-	defer b.Bot.StopLongPolling()
+	const op = "bot.MustRun"
 
-	for update := range updates {
-		if update.Message != nil {
-			chatID := update.Message.Chat.ID
-
-			sentMessage, _ := b.Bot.SendMessage(
-				tu.Message(
-					tu.ID(chatID),
-					update.Message.Text,
-				),
-			)
-
-			fmt.Printf("Sent Message: %v\n", sentMessage)
-		}
+	updates, err := b.Bot.UpdatesViaLongPolling(nil)
+	if err != nil {
+		b.log.Error(op, zap.Error(err))
 	}
 
+	handlers.Register(b.log, updates, b.Bot)
+
+	defer b.Bot.StopLongPolling()
 }
 
 func (b *BotApp) Stop() {

@@ -19,10 +19,10 @@ func main() {
 
 	go application.Bot.MustRun()
 
+	log.Info("App started")
+
 	stop := make(chan os.Signal, 1)
-
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
-
 	<-stop
 	application.Bot.Stop()
 

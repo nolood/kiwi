@@ -16,7 +16,7 @@ func New(log *zap.Logger, cfg *config.Config) *App {
 
 	_ = postgres.New(cfg.Storage)
 
-	bot := botapp.New(cfg.Telegram)
+	bot := botapp.New(log, cfg.Telegram)
 
 	return &App{
 		Bot: bot,
