@@ -2,6 +2,7 @@ package bot
 
 import (
 	"kiwi/internal/app/bot/handlers"
+	"kiwi/internal/app/bot/services"
 	"kiwi/internal/config"
 
 	"github.com/mymmrac/telego"
@@ -9,13 +10,13 @@ import (
 )
 
 type BotApp struct {
-	log     *zap.Logger
-	cfg     config.Telegram
-	Updates <-chan telego.Update
-	Bot     *telego.Bot
+	log      *zap.Logger
+	cfg      config.Telegram
+	Bot      *telego.Bot
+	services *services.Services
 }
 
-func New(log *zap.Logger, cfg config.Telegram) *BotApp {
+func New(log *zap.Logger, cfg config.Telegram, servs *services.Services) *BotApp {
 	const op = "bot.New"
 
 	bot, err := telego.NewBot(cfg.Token, telego.WithDefaultDebugLogger())
@@ -24,9 +25,10 @@ func New(log *zap.Logger, cfg config.Telegram) *BotApp {
 	}
 
 	return &BotApp{
-		log: log,
-		cfg: cfg,
-		Bot: bot,
+		log:      log,
+		cfg:      cfg,
+		services: servs,
+		Bot:      bot,
 	}
 }
 
@@ -38,7 +40,7 @@ func (b *BotApp) MustRun() {
 		b.log.Error(op, zap.Error(err))
 	}
 
-	handlers.Register(b.log, updates, b.Bot)
+	handlers.Register(b.log, updates, b.Bot, b.services)
 
 	defer b.Bot.StopLongPolling()
 }

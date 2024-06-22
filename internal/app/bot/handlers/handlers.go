@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"kiwi/internal/app/bot/services"
+
 	"github.com/mymmrac/telego"
 	th "github.com/mymmrac/telego/telegohandler"
 	tu "github.com/mymmrac/telego/telegoutil"
@@ -8,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func Register(log *zap.Logger, updates <-chan telego.Update, b *telego.Bot) {
+func Register(log *zap.Logger, updates <-chan telego.Update, b *telego.Bot, servs *services.Services) {
 	bh, _ := th.NewBotHandler(b, updates)
 
 	startCommand(bh)

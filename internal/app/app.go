@@ -2,6 +2,8 @@ package app
 
 import (
 	botapp "kiwi/internal/app/bot"
+	"kiwi/internal/app/bot/repositories"
+	"kiwi/internal/app/bot/services"
 	"kiwi/internal/config"
 	"kiwi/internal/storage/postgres"
 
@@ -16,7 +18,11 @@ func New(log *zap.Logger, cfg *config.Config) *App {
 
 	_ = postgres.New(cfg.Storage)
 
-	bot := botapp.New(log, cfg.Telegram)
+	repos := repositories.New(log)
+
+	services := services.New(log, repos)
+
+	bot := botapp.New(log, cfg.Telegram, services)
 
 	return &App{
 		Bot: bot,
