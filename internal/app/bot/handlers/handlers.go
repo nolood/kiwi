@@ -1,11 +1,11 @@
 package handlers
 
 import (
+	"kiwi/internal/app/bot/handlers/commands"
 	"kiwi/internal/app/bot/services"
 
 	"github.com/mymmrac/telego"
 	th "github.com/mymmrac/telego/telegohandler"
-	tu "github.com/mymmrac/telego/telegoutil"
 
 	"go.uber.org/zap"
 )
@@ -13,16 +13,9 @@ import (
 func Register(log *zap.Logger, updates <-chan telego.Update, b *telego.Bot, servs *services.Services) {
 	bh, _ := th.NewBotHandler(b, updates)
 
-	startCommand(bh)
+	comms := commands.New(log, servs)
+
+	comms.Start(bh)
 
 	bh.Start()
-}
-
-func startCommand(bh *th.BotHandler) {
-	bh.Handle(func(bot *telego.Bot, update telego.Update) {
-		_, _ = bot.SendMessage(tu.Message(
-			tu.ID(update.Message.Chat.ID),
-			"Hello, "+update.Message.From.FirstName,
-		))
-	}, th.CommandEqual("start"))
 }

@@ -16,9 +16,9 @@ type App struct {
 
 func New(log *zap.Logger, cfg *config.Config) *App {
 
-	_ = postgres.New(cfg.Storage)
+	storage := postgres.New(cfg.Storage)
 
-	repos := repositories.New(log)
+	repos := repositories.New(log, storage)
 
 	services := services.New(log, repos)
 

@@ -10,6 +10,15 @@ CREATE TABLE IF NOT EXISTS users (
 	is_premium BOOLEAN NOT NULL DEFAULT FALSE,
 	photo_url VARCHAR(1000)
 );
+
+CREATE TABLE IF NOT EXISTS profiles (
+	id SERIAL PRIMARY KEY,
+	user_id BIGINT NOT NULL UNIQUE,
+	age INTEGER,
+	gender VARCHAR(255),
+	about VARCHAR(255),
+	CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id)
+);
 -- +goose StatementEnd
 
 
@@ -17,4 +26,5 @@ CREATE TABLE IF NOT EXISTS users (
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS profiles;
 -- +goose StatementEnd

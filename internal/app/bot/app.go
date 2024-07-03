@@ -19,7 +19,8 @@ type BotApp struct {
 func New(log *zap.Logger, cfg config.Telegram, servs *services.Services) *BotApp {
 	const op = "bot.New"
 
-	bot, err := telego.NewBot(cfg.Token, telego.WithDefaultDebugLogger())
+	bot, err := telego.NewBot(cfg.Token)
+	// bot, err := telego.NewBot(cfg.Token, telego.WithDefaultDebugLogger())
 	if err != nil {
 		log.Panic(op, zap.Error(err))
 	}
