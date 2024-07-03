@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 	age INTEGER,
 	gender VARCHAR(255),
 	about VARCHAR(255),
+	is_active BOOLEAN NOT NULL DEFAULT FALSE,
 	CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
 -- +goose StatementEnd
@@ -25,6 +26,6 @@ CREATE TABLE IF NOT EXISTS profiles (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS profiles;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS profiles CASCADE;
 -- +goose StatementEnd

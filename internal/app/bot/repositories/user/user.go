@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"kiwi/.gen/kiwi/public/model"
 	. "kiwi/.gen/kiwi/public/table"
+	userdto "kiwi/internal/app/bot/dto/user"
 
 	. "github.com/go-jet/jet/v2/postgres"
 	"github.com/go-jet/jet/v2/qrm"
@@ -14,8 +15,8 @@ import (
 )
 
 type Repository interface {
-	Get(tg_id int64) (model.Users, error)
-	Create(user *telego.User) (model.Users, error)
+	Get(tg_id int64) (userdto.UserWithProfile, error)
+	Create(user *telego.User) (userdto.UserWithProfile, error)
 }
 
 type repository struct {
@@ -30,28 +31,48 @@ func New(log *zap.Logger, db *sqlx.DB) Repository {
 	}
 }
 
-func (r *repository) Get(tg_id int64) (model.Users, error) {
+func (r *repository) Get(tg_id int64) (userdto.UserWithProfile, error) {
 	const op = "repositories.user.Get"
 
+	var userprof userdto.UserWithProfile
+
 	var user model.Users
+	var profile model.Profiles
 
-	stmt := SELECT(Users.AllColumns).FROM(Users).WHERE(Users.TelegramID.EQ(Int64(tg_id)))
+	stmtUser := SELECT(Users.AllColumns).FROM(Users).WHERE(Users.TelegramID.EQ(Int64(tg_id)))
 
-	err := stmt.Query(r.db, &user)
+	err := stmtUser.Query(r.db, &user)
 	if err != nil {
 
 		if errors.Is(err, qrm.ErrNoRows) {
-			return user, nil
+			return userprof, nil
 		}
 
-		return user, fmt.Errorf("%s: %w", op, err)
+		return userprof, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return user, nil
+	userprof.User = user
+
+	stmtProfile := SELECT(Profiles.AllColumns).FROM(Profiles).WHERE(Profiles.UserID.EQ(Int64(int64(user.ID))))
+
+	err = stmtProfile.Query(r.db, &profile)
+	if err != nil {
+		if errors.Is(err, qrm.ErrNoRows) {
+			return userprof, nil
+		}
+
+		return userprof, fmt.Errorf("%s: %w", op, err)
+	}
+
+	userprof.Profile = profile
+
+	return userprof, nil
 }
 
-func (r *repository) Create(tgUser *telego.User) (model.Users, error) {
+func (r *repository) Create(tgUser *telego.User) (userdto.UserWithProfile, error) {
 	const op = "repositories.user.Create"
+
+	var userprof userdto.UserWithProfile
 
 	newUser := model.Users{
 		TelegramID:   tgUser.ID,
@@ -62,14 +83,36 @@ func (r *repository) Create(tgUser *telego.User) (model.Users, error) {
 		Username:     tgUser.Username,
 	}
 
-	stmt := Users.INSERT(Users.FirstName, Users.LastName, Users.Username, Users.TelegramID, Users.IsPremium, Users.LanguageCode).MODEL(newUser).ON_CONFLICT(Users.TelegramID).DO_NOTHING().RETURNING(Users.AllColumns)
+	stmtUser := Users.INSERT(Users.FirstName, Users.LastName, Users.Username, Users.TelegramID, Users.IsPremium, Users.LanguageCode).MODEL(newUser).ON_CONFLICT(Users.TelegramID).DO_NOTHING().RETURNING(Users.AllColumns)
 
 	var user model.Users
+	var profile model.Profiles
 
-	err := stmt.Query(r.db, &user)
+	err := stmtUser.Query(r.db, &user)
 	if err != nil {
-		return user, fmt.Errorf("%s: %w", op, err)
+
+		if errors.Is(err, qrm.ErrNoRows) {
+			return userprof, nil
+		}
+
+		return userprof, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return user, nil
+	userprof.User = user
+
+	stmtProfile := Profiles.INSERT(Profiles.UserID).VALUES(user.ID).ON_CONFLICT(Profiles.UserID).DO_NOTHING().RETURNING(Profiles.AllColumns)
+
+	err = stmtProfile.Query(r.db, &profile)
+	if err != nil {
+
+		if errors.Is(err, qrm.ErrNoRows) {
+			return userprof, nil
+		}
+
+		return userprof, fmt.Errorf("%s: %w", op, err)
+	}
+
+	userprof.Profile = profile
+
+	return userprof, nil
 }

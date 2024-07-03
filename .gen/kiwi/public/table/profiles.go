@@ -17,11 +17,12 @@ type profilesTable struct {
 	postgres.Table
 
 	// Columns
-	ID     postgres.ColumnInteger
-	UserID postgres.ColumnInteger
-	Age    postgres.ColumnInteger
-	Gender postgres.ColumnString
-	About  postgres.ColumnString
+	ID       postgres.ColumnInteger
+	UserID   postgres.ColumnInteger
+	Age      postgres.ColumnInteger
+	Gender   postgres.ColumnString
+	About    postgres.ColumnString
+	IsActive postgres.ColumnBool
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -67,19 +68,21 @@ func newProfilesTableImpl(schemaName, tableName, alias string) profilesTable {
 		AgeColumn      = postgres.IntegerColumn("age")
 		GenderColumn   = postgres.StringColumn("gender")
 		AboutColumn    = postgres.StringColumn("about")
-		allColumns     = postgres.ColumnList{IDColumn, UserIDColumn, AgeColumn, GenderColumn, AboutColumn}
-		mutableColumns = postgres.ColumnList{UserIDColumn, AgeColumn, GenderColumn, AboutColumn}
+		IsActiveColumn = postgres.BoolColumn("is_active")
+		allColumns     = postgres.ColumnList{IDColumn, UserIDColumn, AgeColumn, GenderColumn, AboutColumn, IsActiveColumn}
+		mutableColumns = postgres.ColumnList{UserIDColumn, AgeColumn, GenderColumn, AboutColumn, IsActiveColumn}
 	)
 
 	return profilesTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:     IDColumn,
-		UserID: UserIDColumn,
-		Age:    AgeColumn,
-		Gender: GenderColumn,
-		About:  AboutColumn,
+		ID:       IDColumn,
+		UserID:   UserIDColumn,
+		Age:      AgeColumn,
+		Gender:   GenderColumn,
+		About:    AboutColumn,
+		IsActive: IsActiveColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

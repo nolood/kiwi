@@ -2,7 +2,7 @@ package user
 
 import (
 	"fmt"
-	"kiwi/.gen/kiwi/public/model"
+	userdto "kiwi/internal/app/bot/dto/user"
 	"kiwi/internal/app/bot/repositories"
 
 	"github.com/mymmrac/telego"
@@ -11,10 +11,9 @@ import (
 )
 
 type Service interface {
-	Get(tg_id int64) (model.Users, error)
-	Create(user *telego.User) (model.Users, error)
-
-	GetOrCreate(user *telego.User) (model.Users, error)
+	Get(tg_id int64) (userdto.UserWithProfile, error)
+	Create(user *telego.User) (userdto.UserWithProfile, error)
+	GetOrCreate(user *telego.User) (userdto.UserWithProfile, error)
 }
 
 type service struct {
@@ -29,7 +28,7 @@ func New(log *zap.Logger, repos *repositories.Repos) Service {
 	}
 }
 
-func (s *service) Get(tg_id int64) (model.Users, error) {
+func (s *service) Get(tg_id int64) (userdto.UserWithProfile, error) {
 	const op = "services.user.Get"
 
 	user, err := s.repos.User.Get(tg_id)
@@ -40,7 +39,7 @@ func (s *service) Get(tg_id int64) (model.Users, error) {
 	return user, nil
 }
 
-func (s *service) Create(tgUser *telego.User) (model.Users, error) {
+func (s *service) Create(tgUser *telego.User) (userdto.UserWithProfile, error) {
 	const op = "services.user.Create"
 
 	user, err := s.repos.User.Create(tgUser)
@@ -52,22 +51,22 @@ func (s *service) Create(tgUser *telego.User) (model.Users, error) {
 	return user, nil
 }
 
-func (s *service) GetOrCreate(tgUser *telego.User) (model.Users, error) {
+func (s *service) GetOrCreate(tgUser *telego.User) (userdto.UserWithProfile, error) {
 	const op = "services.user.GetOrCreate"
 
-	user, err := s.Get(tgUser.ID)
+	userprof, err := s.Get(tgUser.ID)
 	if err != nil {
-		return user, fmt.Errorf("%s: %w", op, err)
+		return userprof, fmt.Errorf("%s: %w", op, err)
 	}
 
-	if user.ID != 0 {
-		return user, nil
+	if userprof.User.ID != 0 {
+		return userprof, nil
 	}
 
-	user, err = s.Create(tgUser)
+	userprof, err = s.Create(tgUser)
 	if err != nil {
-		return user, fmt.Errorf("%s: %w", op, err)
+		return userprof, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return user, nil
+	return userprof, nil
 }

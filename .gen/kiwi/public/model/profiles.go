@@ -8,9 +8,10 @@
 package model
 
 type Profiles struct {
-	ID     int32 `sql:"primary_key"`
-	UserID int64
-	Age    *int32
-	Gender *string
-	About  *string
+	ID       int32 `sql:"primary_key"`
+	UserID   int64
+	Age      *int32
+	Gender   *string
+	About    *string
+	IsActive bool
 }

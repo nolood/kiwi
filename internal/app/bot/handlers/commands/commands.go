@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"kiwi/internal/app/bot/handlers/callbacks"
 	"kiwi/internal/app/bot/services"
 	"kiwi/internal/app/bot/static/texts"
 
@@ -8,6 +9,10 @@ import (
 	th "github.com/mymmrac/telego/telegohandler"
 	tu "github.com/mymmrac/telego/telegoutil"
 	"go.uber.org/zap"
+)
+
+const (
+	START = "start"
 )
 
 type Commands interface {
@@ -29,21 +34,38 @@ func New(log *zap.Logger, servs *services.Services) Commands {
 func (c *commands) Start(bh *th.BotHandler) {
 	bh.Handle(func(bot *telego.Bot, update telego.Update) {
 
-		user, err := c.services.User.GetOrCreate(update.Message.From)
+		userprof, err := c.services.User.GetOrCreate(update.Message.From)
 		if err != nil {
 			c.log.Error("handlers.commands.Start", zap.Error(err))
 			return
 		}
 
-		c.log.Info("handlers.commands.Start", zap.Any("user", user))
+		var keyboard *telego.InlineKeyboardMarkup
 
-		// TODO: Если есть анкета и отключена - | Начать поиск | Посмотреть анкету |
-		// TODO: Если нет анкеты | Заполнить анкету |
-		// TODO: Если есть анкета и включена - | Продолжить поиск | Посмотреть анкету |
+		// Если есть заполненная анкета и отключена - | Начать поиск | Посмотреть анкету |
+		if userprof.Profile.Age != nil && userprof.Profile.Gender != nil && !userprof.Profile.IsActive {
+			keyboard = tu.InlineKeyboard(tu.InlineKeyboardRow(
+				tu.InlineKeyboardButton("Начать поиск").WithCallbackData("search"),
+				tu.InlineKeyboardButton("Посмотреть анкету").WithCallbackData(callbacks.VIEW_PROFILE),
+			))
+		}
 
-		keyboard := tu.InlineKeyboard(tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton("Start").WithCallbackData("start"),
-		))
+		// Если анкета заполнена не до конца | Заполнить анкету |
+
+		if userprof.Profile.Age == nil || userprof.Profile.Gender == nil {
+			keyboard = tu.InlineKeyboard(tu.InlineKeyboardRow(
+				tu.InlineKeyboardButton("Заполнить анкету").WithCallbackData("start"),
+			))
+		}
+
+		// Если анкета заполнена и включена - | Продолжить поиск | Посмотреть анкету |
+
+		if userprof.Profile.Age != nil && userprof.Profile.Gender != nil && userprof.Profile.IsActive {
+			keyboard = tu.InlineKeyboard(tu.InlineKeyboardRow(
+				tu.InlineKeyboardButton("Продолжить поиск").WithCallbackData("start"),
+				tu.InlineKeyboardButton("Посмотреть анкету").WithCallbackData(callbacks.VIEW_PROFILE),
+			))
+		}
 
 		msg := tu.Message(
 			tu.ID(update.Message.Chat.ID),
@@ -52,5 +74,5 @@ func (c *commands) Start(bh *th.BotHandler) {
 
 		_, _ = bot.SendMessage(msg)
 
-	}, th.CommandEqual("start"))
+	}, th.CommandEqual(START))
 }
