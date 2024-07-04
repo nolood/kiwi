@@ -101,7 +101,7 @@ func (r *repository) Create(tgUser *telego.User) (userdto.UserWithProfile, error
 
 	userprof.User = user
 
-	stmtProfile := Profiles.INSERT(Profiles.UserID).VALUES(user.ID).ON_CONFLICT(Profiles.UserID).DO_NOTHING().RETURNING(Profiles.AllColumns)
+	stmtProfile := Profiles.INSERT(Profiles.UserID, Profiles.UserTgID).VALUES(user.ID, user.TelegramID).ON_CONFLICT(Profiles.UserID).DO_NOTHING().RETURNING(Profiles.AllColumns)
 
 	err = stmtProfile.Query(r.db, &profile)
 	if err != nil {

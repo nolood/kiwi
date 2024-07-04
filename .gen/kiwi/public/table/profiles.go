@@ -19,6 +19,7 @@ type profilesTable struct {
 	// Columns
 	ID       postgres.ColumnInteger
 	UserID   postgres.ColumnInteger
+	UserTgID postgres.ColumnInteger
 	Age      postgres.ColumnInteger
 	Gender   postgres.ColumnString
 	About    postgres.ColumnString
@@ -65,12 +66,13 @@ func newProfilesTableImpl(schemaName, tableName, alias string) profilesTable {
 	var (
 		IDColumn       = postgres.IntegerColumn("id")
 		UserIDColumn   = postgres.IntegerColumn("user_id")
+		UserTgIDColumn = postgres.IntegerColumn("user_tg_id")
 		AgeColumn      = postgres.IntegerColumn("age")
 		GenderColumn   = postgres.StringColumn("gender")
 		AboutColumn    = postgres.StringColumn("about")
 		IsActiveColumn = postgres.BoolColumn("is_active")
-		allColumns     = postgres.ColumnList{IDColumn, UserIDColumn, AgeColumn, GenderColumn, AboutColumn, IsActiveColumn}
-		mutableColumns = postgres.ColumnList{UserIDColumn, AgeColumn, GenderColumn, AboutColumn, IsActiveColumn}
+		allColumns     = postgres.ColumnList{IDColumn, UserIDColumn, UserTgIDColumn, AgeColumn, GenderColumn, AboutColumn, IsActiveColumn}
+		mutableColumns = postgres.ColumnList{UserIDColumn, UserTgIDColumn, AgeColumn, GenderColumn, AboutColumn, IsActiveColumn}
 	)
 
 	return profilesTable{
@@ -79,6 +81,7 @@ func newProfilesTableImpl(schemaName, tableName, alias string) profilesTable {
 		//Columns
 		ID:       IDColumn,
 		UserID:   UserIDColumn,
+		UserTgID: UserTgIDColumn,
 		Age:      AgeColumn,
 		Gender:   GenderColumn,
 		About:    AboutColumn,

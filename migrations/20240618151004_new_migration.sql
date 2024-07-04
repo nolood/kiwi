@@ -19,11 +19,13 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS profiles (
 	id SERIAL PRIMARY KEY,
 	user_id BIGINT NOT NULL UNIQUE,
+	user_tg_id BIGINT NOT NULL UNIQUE,
 	age INTEGER,
 	gender VARCHAR(255),
 	about VARCHAR(255),
 	is_active BOOLEAN NOT NULL DEFAULT FALSE,
-	CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id)
+	CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id),
+	CONSTRAINT fk_user_tg FOREIGN KEY (user_tg_id) REFERENCES users(telegram_id)
 );
 -- +goose StatementEnd
 
