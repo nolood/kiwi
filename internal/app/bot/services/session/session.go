@@ -11,6 +11,7 @@ import (
 type Service interface {
 	Get(tg_id int64) (model.Session, error)
 	Set(tg_id int64, value model.Session) error
+	Compare(tg_id int64, value model.Session) bool
 }
 
 type service struct {
@@ -45,4 +46,21 @@ func (s *service) Set(tg_id int64, value model.Session) error {
 	}
 
 	return nil
+}
+
+func (s *service) Compare(tg_id int64, value model.Session) bool {
+
+	const op = "services.session.Compare"
+
+	session, err := s.Get(tg_id)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+		return false
+	}
+
+	if session == value {
+		return true
+	}
+
+	return false
 }

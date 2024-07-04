@@ -2,8 +2,10 @@ package callbacks
 
 import (
 	"kiwi/.gen/kiwi/public/model"
+	userdto "kiwi/internal/app/bot/dto/user"
 	"kiwi/internal/app/bot/services"
 	"kiwi/internal/app/bot/static/texts"
+	"kiwi/internal/app/bot/utils/predicates"
 	"strconv"
 
 	"github.com/mymmrac/telego"
@@ -17,6 +19,7 @@ const (
 	FILL_PROFILE  = "fill_profile"
 	GENDER_MALE   = "gender_male"
 	GENDER_FEMALE = "gender_female"
+	DEFAULT_PHOTO = "default_photo"
 )
 
 type Callbacks interface {
@@ -54,16 +57,23 @@ func (c *callbacks) ViewProfile(bh *th.BotHandler) {
 func (c *callbacks) FillProfile(bh *th.BotHandler) {
 
 	// Start profile handler
-
 	bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
 		const op = "handlers.callbacks.FillProfile.Callback"
 
 		chat := query.Message.GetChat()
-		msg := telego.EditMessageTextParams{Text: texts.AgeQuestion, InlineMessageID: query.InlineMessageID, MessageID: query.Message.GetMessageID(), ChatID: chat.ChatID()}
+
+		infoMsg := telego.EditMessageTextParams{Text: texts.ProfileFillInfo, InlineMessageID: query.InlineMessageID, MessageID: query.Message.GetMessageID(), ChatID: chat.ChatID()}
 
 		c.services.Session.Set(query.From.ID, model.Session_FillProfileAge)
 
-		_, err := bot.EditMessageText(&msg)
+		_, err := bot.EditMessageText(&infoMsg)
+		if err != nil {
+			c.log.Error(op, zap.Error(err))
+		}
+
+		msg := tu.Message(chat.ChatID(), texts.AgeQuestion)
+
+		_, err = bot.SendMessage(msg)
 		if err != nil {
 			c.log.Error(op, zap.Error(err))
 		}
@@ -71,19 +81,8 @@ func (c *callbacks) FillProfile(bh *th.BotHandler) {
 	}, th.CallbackDataEqual(FILL_PROFILE))
 
 	// Age handler
-
 	bh.Handle(func(bot *telego.Bot, update telego.Update) {
 		const op = "handlers.callbacks.FillProfile.Message.Age"
-
-		session, err := c.services.Session.Get(update.Message.From.ID)
-		if err != nil {
-			c.log.Error(op, zap.Error(err))
-			return
-		}
-
-		if session != model.Session_FillProfileAge {
-			return
-		}
 
 		textAge := update.Message.Text
 		var msg *telego.SendMessageParams
@@ -118,7 +117,7 @@ func (c *callbacks) FillProfile(bh *th.BotHandler) {
 			)
 		}
 
-		_, err = strconv.Atoi(textAge)
+		_, err := strconv.Atoi(textAge)
 		if err != nil {
 			ok = false
 			msg = tu.Message(
@@ -129,6 +128,7 @@ func (c *callbacks) FillProfile(bh *th.BotHandler) {
 
 		if ok {
 			c.services.Session.Set(update.Message.From.ID, model.Session_FillProfileGender)
+			c.services.Profile.UpdateProfile(update.Message.From.ID, userdto.ProfileUpdate{Age: &age})
 		}
 
 		_, err = bot.SendMessage(msg)
@@ -136,6 +136,102 @@ func (c *callbacks) FillProfile(bh *th.BotHandler) {
 			c.log.Error(op, zap.Error(err))
 		}
 
-	}, th.AnyMessageWithText())
+	}, th.And(th.AnyMessageWithText(), predicates.ThMessageSessionEqual(*c.services, model.Session_FillProfileAge)))
+
+	// Gender handler
+	bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
+		const op = "handlers.callbacks.FillProfile.Message.Gender"
+
+		chat := query.Message.GetChat()
+
+		keyboard := tu.InlineKeyboard(
+			tu.InlineKeyboardRow(
+				tu.InlineKeyboardButton(texts.PhotoDefault).WithCallbackData(DEFAULT_PHOTO),
+			),
+		)
+
+		msg := telego.EditMessageTextParams{Text: texts.PhotoInfo, InlineMessageID: query.InlineMessageID, MessageID: query.Message.GetMessageID(), ChatID: chat.ChatID(), ReplyMarkup: keyboard}
+
+		var gender string
+
+		if query.Data == GENDER_MALE {
+			gender = "M"
+		}
+
+		if query.Data == GENDER_FEMALE {
+			gender = "F"
+		}
+
+		c.services.Session.Set(query.From.ID, model.Session_FillProfilePhoto)
+		c.services.Profile.UpdateProfile(query.From.ID, userdto.ProfileUpdate{Gender: &gender})
+
+		_, err := bot.EditMessageText(&msg)
+		if err != nil {
+			c.log.Error(op, zap.Error(err))
+		}
+
+	}, th.And(th.Or(th.CallbackDataEqual(GENDER_MALE), th.CallbackDataEqual(GENDER_FEMALE)), predicates.ThCallbackSessionEqual(*c.services, model.Session_FillProfileGender)))
+
+	// Photo handler
+	bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
+		const op = "handlers.callbacks.FillProfile.Message.Photo"
+
+		var msg *telego.SendMessageParams
+
+		photos, err := bot.GetUserProfilePhotos(&telego.GetUserProfilePhotosParams{UserID: query.From.ID, Limit: 1})
+		if err != nil {
+			c.log.Error(op, zap.Error(err))
+		}
+
+		ok := true
+
+		if photos.TotalCount == 0 {
+			ok = false
+			msg = tu.Message(
+				tu.ID(query.From.ID),
+				"Не удалось получить ни одну фотографию, загрузите пожалуйста своё настоящее фото",
+			)
+		}
+
+		if ok {
+			fileId := photos.Photos[0][len(photos.Photos[0])-1].FileID
+			c.log.Info(fileId)
+		}
+
+		_, err = bot.SendMessage(msg)
+		if err != nil {
+			c.log.Error(op, zap.Error(err))
+		}
+
+	}, th.And(th.CallbackDataEqual(DEFAULT_PHOTO), predicates.ThCallbackSessionEqual(*c.services, model.Session_FillProfilePhoto)))
+
+	// About handler
+	bh.Handle(func(bot *telego.Bot, update telego.Update) {
+		const op = "handlers.callbacks.FillProfile.Message.About"
+
+		about := update.Message.Text
+		var msg *telego.SendMessageParams
+
+		c.log.Info(about)
+
+		keyboard := tu.InlineKeyboard(tu.InlineKeyboardRow(
+			tu.InlineKeyboardButton(texts.GenderMale).WithCallbackData(GENDER_MALE),
+			tu.InlineKeyboardButton(texts.GenderFemale).WithCallbackData(GENDER_FEMALE),
+		))
+
+		msg = tu.Message(
+			tu.ID(update.Message.Chat.ID),
+			"Complete",
+		).WithReplyMarkup(keyboard)
+
+		c.services.Session.Set(update.Message.From.ID, model.Session_None)
+		c.services.Profile.UpdateProfile(update.Message.From.ID, userdto.ProfileUpdate{About: &about})
+
+		_, err := bot.SendMessage(msg)
+		if err != nil {
+			c.log.Error(op, zap.Error(err))
+		}
+
+	}, th.And(th.AnyMessageWithText(), predicates.ThMessageSessionEqual(*c.services, model.Session_FillProfileAbout)))
 
 }
