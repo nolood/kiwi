@@ -10,11 +10,17 @@ package enum
 import "github.com/go-jet/jet/v2/postgres"
 
 var Session = &struct {
-	FillProfile   postgres.StringExpression
-	FillBlacklist postgres.StringExpression
-	None          postgres.StringExpression
+	FillProfileAge    postgres.StringExpression
+	FillProfilePhoto  postgres.StringExpression
+	FillProfileGender postgres.StringExpression
+	FillProfileAbout  postgres.StringExpression
+	FillBlacklist     postgres.StringExpression
+	None              postgres.StringExpression
 }{
-	FillProfile:   postgres.NewEnumValue("fill_profile"),
-	FillBlacklist: postgres.NewEnumValue("fill_blacklist"),
-	None:          postgres.NewEnumValue("none"),
+	FillProfileAge:    postgres.NewEnumValue("fill_profile_age"),
+	FillProfilePhoto:  postgres.NewEnumValue("fill_profile_photo"),
+	FillProfileGender: postgres.NewEnumValue("fill_profile_gender"),
+	FillProfileAbout:  postgres.NewEnumValue("fill_profile_about"),
+	FillBlacklist:     postgres.NewEnumValue("fill_blacklist"),
+	None:              postgres.NewEnumValue("none"),
 }

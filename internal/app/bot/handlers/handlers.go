@@ -17,9 +17,10 @@ func Register(log *zap.Logger, updates <-chan telego.Update, b *telego.Bot, serv
 	comms := commands.New(log, servs)
 	callbacks := callbacks.New(log, servs)
 
+	comms.Start(bh)
+
 	callbacks.ViewProfile(bh)
 	callbacks.FillProfile(bh)
-	comms.Start(bh)
 
 	bh.Start()
 }

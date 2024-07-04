@@ -17,6 +17,7 @@ import (
 type Repository interface {
 	Get(tg_id int64) (userdto.UserWithProfile, error)
 	Create(user *telego.User) (userdto.UserWithProfile, error)
+	UpdateAge(tg_id int64, age int) error
 }
 
 type repository struct {
@@ -115,4 +116,15 @@ func (r *repository) Create(tgUser *telego.User) (userdto.UserWithProfile, error
 	userprof.Profile = profile
 
 	return userprof, nil
+}
+
+func (r *repository) UpdateAge(tg_id int64, age int) error {
+	const op = "repositories.user.UpdateAge"
+
+	// _, err := stmt.Exec(r.db)
+	// if err != nil {
+	// return fmt.Errorf("%s: %w", op, err)
+	// }
+
+	return nil
 }

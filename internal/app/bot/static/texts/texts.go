@@ -7,5 +7,14 @@ func GreetingText(name string) string {
 }
 
 const (
-	AgeQuestion = "Сколько Вам лет?"
+	AgeQuestion  = "Сколько Вам лет?"
+	AgeLower     = "Вы должны быть старше 16-ти лет!"
+	AgeUpper     = "Пожалуйста, введите ваш реальный возраст"
+	AgeIncorrect = "Укажите ваш реальный возраст одним числом"
+)
+
+const (
+	GenderQuestion = "Кто вы?"
+	GenderMale     = "Я парень"
+	GenderFemale   = "Я девушка"
 )

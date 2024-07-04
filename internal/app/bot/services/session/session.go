@@ -1,14 +1,16 @@
 package session
 
 import (
+	"fmt"
+	"kiwi/.gen/kiwi/public/model"
 	"kiwi/internal/app/bot/repositories"
 
 	"go.uber.org/zap"
 )
 
 type Service interface {
-	Get(tg_id int64) (string, error)
-	Set(tg_id int64, value string) (string, error)
+	Get(tg_id int64) (model.Session, error)
+	Set(tg_id int64, value model.Session) error
 }
 
 type service struct {
@@ -23,18 +25,24 @@ func New(log *zap.Logger, repos *repositories.Repos) Service {
 	}
 }
 
-func (s *service) Get(tg_id int64) (string, error) {
+func (s *service) Get(tg_id int64) (model.Session, error) {
 	const op = "services.session.Get"
 
-	s.log.Info(op)
+	session, err := s.repos.Session.Get(tg_id)
+	if err != nil {
+		return session, fmt.Errorf("%s: %w", op, err)
+	}
 
-	return "", nil
+	return session, nil
 }
 
-func (s *service) Set(tg_id int64, value string) (string, error) {
+func (s *service) Set(tg_id int64, value model.Session) error {
 	const op = "services.session.Set"
 
-	s.log.Info(op)
+	err := s.repos.Session.Set(tg_id, value)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
 
-	return "", nil
+	return nil
 }

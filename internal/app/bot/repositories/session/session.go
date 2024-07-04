@@ -14,6 +14,7 @@ import (
 
 type Repository interface {
 	Get(tg_id int64) (model.Session, error)
+	Set(tg_id int64, value model.Session) error
 }
 
 type repository struct {
@@ -33,9 +34,11 @@ func (r *repository) Get(tg_id int64) (model.Session, error) {
 
 	stmt := SELECT(Users.Session).FROM(Users).WHERE(Users.TelegramID.EQ(Int64(tg_id)))
 
-	var session model.Session
+	var user model.Users
 
-	err := stmt.Query(r.db, &session)
+	err := stmt.Query(r.db, &user)
+
+	session := user.Session
 
 	if err != nil {
 		return session, fmt.Errorf("%s: %w", op, err)
