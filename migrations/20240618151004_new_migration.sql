@@ -1,5 +1,8 @@
 -- +goose Up
 -- +goose StatementBegin
+
+CREATE TYPE session AS ENUM ('fill_profile', 'fill_blacklist', 'none');
+
 CREATE TABLE IF NOT EXISTS users (
 	id SERIAL PRIMARY KEY,
 	telegram_id BIGINT NOT NULL UNIQUE,
@@ -8,8 +11,10 @@ CREATE TABLE IF NOT EXISTS users (
 	username VARCHAR(255) NOT NULL UNIQUE,
 	language_code VARCHAR(5),
 	is_premium BOOLEAN NOT NULL DEFAULT FALSE,
-	photo_url VARCHAR(1000)
+	photo_url VARCHAR(1000),
+	session session NOT NULL DEFAULT 'none' 
 );
+
 
 CREATE TABLE IF NOT EXISTS profiles (
 	id SERIAL PRIMARY KEY,
@@ -28,4 +33,5 @@ CREATE TABLE IF NOT EXISTS profiles (
 -- +goose StatementBegin
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS profiles CASCADE;
+DROP TYPE IF EXISTS session;
 -- +goose StatementEnd

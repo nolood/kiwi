@@ -54,7 +54,7 @@ func (c *commands) Start(bh *th.BotHandler) {
 
 		if userprof.Profile.Age == nil || userprof.Profile.Gender == nil {
 			keyboard = tu.InlineKeyboard(tu.InlineKeyboardRow(
-				tu.InlineKeyboardButton("Заполнить анкету").WithCallbackData("start"),
+				tu.InlineKeyboardButton("Заполнить анкету").WithCallbackData(callbacks.FILL_PROFILE),
 			))
 		}
 

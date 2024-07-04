@@ -25,6 +25,7 @@ type usersTable struct {
 	LanguageCode postgres.ColumnString
 	IsPremium    postgres.ColumnBool
 	PhotoURL     postgres.ColumnString
+	Session      postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -73,8 +74,9 @@ func newUsersTableImpl(schemaName, tableName, alias string) usersTable {
 		LanguageCodeColumn = postgres.StringColumn("language_code")
 		IsPremiumColumn    = postgres.BoolColumn("is_premium")
 		PhotoURLColumn     = postgres.StringColumn("photo_url")
-		allColumns         = postgres.ColumnList{IDColumn, TelegramIDColumn, FirstNameColumn, LastNameColumn, UsernameColumn, LanguageCodeColumn, IsPremiumColumn, PhotoURLColumn}
-		mutableColumns     = postgres.ColumnList{TelegramIDColumn, FirstNameColumn, LastNameColumn, UsernameColumn, LanguageCodeColumn, IsPremiumColumn, PhotoURLColumn}
+		SessionColumn      = postgres.StringColumn("session")
+		allColumns         = postgres.ColumnList{IDColumn, TelegramIDColumn, FirstNameColumn, LastNameColumn, UsernameColumn, LanguageCodeColumn, IsPremiumColumn, PhotoURLColumn, SessionColumn}
+		mutableColumns     = postgres.ColumnList{TelegramIDColumn, FirstNameColumn, LastNameColumn, UsernameColumn, LanguageCodeColumn, IsPremiumColumn, PhotoURLColumn, SessionColumn}
 	)
 
 	return usersTable{
@@ -89,6 +91,7 @@ func newUsersTableImpl(schemaName, tableName, alias string) usersTable {
 		LanguageCode: LanguageCodeColumn,
 		IsPremium:    IsPremiumColumn,
 		PhotoURL:     PhotoURLColumn,
+		Session:      SessionColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

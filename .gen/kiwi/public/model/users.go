@@ -16,4 +16,5 @@ type Users struct {
 	LanguageCode *string
 	IsPremium    bool
 	PhotoURL     *string
+	Session      Session
 }
