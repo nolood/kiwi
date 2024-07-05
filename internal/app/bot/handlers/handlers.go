@@ -3,24 +3,44 @@ package handlers
 import (
 	"kiwi/internal/app/bot/handlers/callbacks"
 	"kiwi/internal/app/bot/handlers/commands"
+	"kiwi/internal/app/bot/handlers/scenes"
 	"kiwi/internal/app/bot/services"
+	"sync"
 
 	"github.com/mymmrac/telego"
-	th "github.com/mymmrac/telego/telegohandler"
 
 	"go.uber.org/zap"
 )
 
 func Register(log *zap.Logger, updates <-chan telego.Update, b *telego.Bot, servs *services.Services) {
-	bh, _ := th.NewBotHandler(b, updates)
+	sc := scenes.New(log, servs, b, updates)
 
-	comms := commands.New(log, servs)
-	callbacks := callbacks.New(log, servs)
+	comms := commands.New(log, servs, b, updates)
+	comms.Start()
 
-	comms.Start(bh)
+	cb := callbacks.New(log, servs, b, updates, sc)
+	cb.FillProfile()
 
-	callbacks.ViewProfile(bh)
-	callbacks.FillProfile(bh)
+	var wg sync.WaitGroup
 
-	bh.Start()
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		comms.Bh.Start()
+	}()
+
+	// go func() {
+	// defer wg.Done()
+	// cb.Bh.Start()
+	// }()
+
+	for update := range updates {
+		// Здесь обрабатываем каждое обновление, которое приходит из канала updates
+		log.Info("Received update", zap.Any("update", update))
+
+	}
+
+	wg.Wait()
+
 }
