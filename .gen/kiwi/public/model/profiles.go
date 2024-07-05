@@ -13,6 +13,7 @@ type Profiles struct {
 	UserTgID int64
 	Age      *int32
 	Gender   *string
+	PhotoID  *string
 	About    *string
 	IsActive bool
 }

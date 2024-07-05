@@ -39,7 +39,6 @@ func (r *repository) Get(tg_id int64) (model.Session, error) {
 	err := stmt.Query(r.db, &user)
 
 	session := user.Session
-
 	if err != nil {
 		return session, fmt.Errorf("%s: %w", op, err)
 	}

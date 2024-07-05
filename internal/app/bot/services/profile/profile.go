@@ -67,5 +67,12 @@ func (s *service) UpdateProfile(tg_id int64, profile userdto.ProfileUpdate) erro
 		}
 	}
 
+	if profile.PhotoId != nil {
+		err := s.repos.User.UpdatePhoto(tg_id, *profile.PhotoId)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
 	return nil
 }

@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 	user_tg_id BIGINT NOT NULL UNIQUE,
 	age INTEGER,
 	gender VARCHAR(255),
+	photo_id VARCHAR(2000),
 	about VARCHAR(255),
 	is_active BOOLEAN NOT NULL DEFAULT FALSE,
 	CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id),
