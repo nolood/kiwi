@@ -14,27 +14,27 @@ import (
 type Callbacks struct {
 	log      *zap.Logger
 	services *services.Services
-	Bh       *th.BotHandler
+	bh       *th.BotHandler
 	scenes   *scenes.Scenes
 }
 
-func New(log *zap.Logger, servs *services.Services, b *telego.Bot, updates <-chan telego.Update, sc *scenes.Scenes) *Callbacks {
-
-	bh, err := th.NewBotHandler(b, updates)
-	if err != nil {
-		log.Fatal("handlers.callbacks.New", zap.Error(err))
-	}
+func New(log *zap.Logger, servs *services.Services, b *telego.Bot, bh *th.BotHandler, sc *scenes.Scenes) *Callbacks {
 
 	return &Callbacks{
 		log:      log,
 		services: servs,
-		Bh:       bh,
+		bh:       bh,
 		scenes:   sc,
 	}
 }
 
-func (c *Callbacks) ViewProfile() {
-	c.Bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
+func (c *Callbacks) Register() {
+	c.viewProfile()
+	c.fillProfile()
+}
+
+func (c *Callbacks) viewProfile() {
+	c.bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
 
 		chat := query.Message.GetChat()
 
@@ -48,8 +48,8 @@ func (c *Callbacks) ViewProfile() {
 	}, th.CallbackDataEqual(callbacks_consts.VIEW_PROFILE))
 }
 
-func (c *Callbacks) FillProfile() {
-	c.Bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
+func (c *Callbacks) fillProfile() {
+	c.bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
 		const op = "handlers.callbacks.FillProfile.Callback"
 
 		chat := query.Message.GetChat()
@@ -61,7 +61,7 @@ func (c *Callbacks) FillProfile() {
 			c.log.Error(op, zap.Error(err))
 		}
 
-		c.scenes.Profile.FillProfile(chat.ChatID())
+		c.scenes.Profile.StartFillProfileScene(chat.ChatID())
 
 	}, th.CallbackDataEqual(callbacks_consts.FILL_PROFILE))
 

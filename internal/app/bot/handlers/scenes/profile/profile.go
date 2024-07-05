@@ -18,23 +18,16 @@ import (
 type Scene struct {
 	log      *zap.Logger
 	services *services.Services
-	Bh       *th.BotHandler
+	bh       *th.BotHandler
 	bot      *telego.Bot
 }
 
-func New(log *zap.Logger, servs *services.Services, bot *telego.Bot, updates <-chan telego.Update) *Scene {
-
-	const op = "handlers.scenes.New"
-
-	bh, err := th.NewBotHandler(bot, updates)
-	if err != nil {
-		log.Fatal(op, zap.Error(err))
-	}
+func New(log *zap.Logger, servs *services.Services, bot *telego.Bot, bh *th.BotHandler) *Scene {
 
 	return &Scene{
 		log:      log,
 		services: servs,
-		Bh:       bh,
+		bh:       bh,
 		bot:      bot,
 	}
 }
@@ -42,12 +35,7 @@ func New(log *zap.Logger, servs *services.Services, bot *telego.Bot, updates <-c
 func (s *Scene) handleAge(next func(chatId telego.ChatID)) {
 	const op = "handlers.scenes.profile.handleAge"
 
-	s.log.Debug("Register profile age handler")
-
-	s.Bh.Handle(func(bot *telego.Bot, update telego.Update) {
-
-		s.log.Info("AGE HANDLER triggered")
-
+	s.bh.Handle(func(bot *telego.Bot, update telego.Update) {
 		textAge := update.Message.Text
 		var msg *telego.SendMessageParams
 
@@ -104,18 +92,8 @@ func (s *Scene) handleAge(next func(chatId telego.ChatID)) {
 }
 
 func (s *Scene) handleGender(next func(chatId telego.ChatID)) {
-	s.Bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
-		const op = "handlers.scenes.profile.handleGender"
-
+	s.bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
 		chat := query.Message.GetChat()
-
-		keyboard := tu.InlineKeyboard(
-			tu.InlineKeyboardRow(
-				tu.InlineKeyboardButton(texts.PhotoDefault).WithCallbackData(callbacks_consts.DEFAULT_PHOTO),
-			),
-		)
-
-		msg := telego.EditMessageTextParams{Text: texts.PhotoInfo, InlineMessageID: query.InlineMessageID, MessageID: query.Message.GetMessageID(), ChatID: chat.ChatID(), ReplyMarkup: keyboard}
 
 		var gender string
 
@@ -127,13 +105,8 @@ func (s *Scene) handleGender(next func(chatId telego.ChatID)) {
 			gender = "F"
 		}
 
-		s.services.Session.Set(query.From.ID, model.Session_FillProfilePhoto)
+		s.services.Session.Set(query.From.ID, model.Session_None)
 		s.services.Profile.UpdateProfile(query.From.ID, userdto.ProfileUpdate{Gender: &gender})
-
-		_, err := bot.EditMessageText(&msg)
-		if err != nil {
-			s.log.Error(op, zap.Error(err))
-		}
 
 		next(chat.ChatID())
 
@@ -176,18 +149,32 @@ func (s *Scene) GetGender(chatId telego.ChatID) {
 	}
 }
 
-func (s *Scene) FillProfile(chatId telego.ChatID) {
+func (s *Scene) GetPhoto(chatId telego.ChatID) {
+	const op = "handlers.scenes.profile.GetPhoto"
+	keyboard := tu.InlineKeyboard(
+		tu.InlineKeyboardRow(
+			tu.InlineKeyboardButton(texts.PhotoDefault).WithCallbackData(callbacks_consts.DEFAULT_PHOTO),
+		),
+	)
 
+	msg := tu.Message(chatId, texts.PhotoInfo).WithReplyMarkup(keyboard)
+
+	_, err := s.bot.SendMessage(msg)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
+}
+
+func (s *Scene) StartFillProfileScene(chatId telego.ChatID) {
+	s.GetAge(chatId)
+}
+
+func (s *Scene) RegisterFillProfileScene() {
 	s.handleAge(func(chatId telego.ChatID) {
 		s.GetGender(chatId)
 	})
 
 	s.handleGender(func(chatId telego.ChatID) {
-		s.log.Info("FILL PROFILE COMPLETE)))")
+		s.GetPhoto(chatId)
 	})
-
-	s.GetAge(chatId)
-
-	s.log.Debug("Start profile bot handler")
-	s.Bh.Start()
 }

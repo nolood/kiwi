@@ -18,25 +18,24 @@ const (
 type Commands struct {
 	log      *zap.Logger
 	services *services.Services
-	Bh       *th.BotHandler
+	bh       *th.BotHandler
 }
 
-func New(log *zap.Logger, servs *services.Services, b *telego.Bot, updates <-chan telego.Update) *Commands {
-
-	bh, err := th.NewBotHandler(b, updates)
-	if err != nil {
-		log.Fatal("handlers.commands.New", zap.Error(err))
-	}
+func New(log *zap.Logger, servs *services.Services, b *telego.Bot, bh *th.BotHandler) *Commands {
 
 	return &Commands{
 		log:      log,
 		services: servs,
-		Bh:       bh,
+		bh:       bh,
 	}
 }
 
-func (c *Commands) Start() {
-	c.Bh.Handle(func(bot *telego.Bot, update telego.Update) {
+func (c *Commands) Register() {
+	c.start()
+}
+
+func (c *Commands) start() {
+	c.bh.Handle(func(bot *telego.Bot, update telego.Update) {
 
 		userprof, err := c.services.User.GetOrCreate(update.Message.From)
 		if err != nil {
