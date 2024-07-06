@@ -74,8 +74,14 @@ func (s *Scene) handleAge(next func(chatId telego.ChatID)) {
 		}
 
 		if ok {
-			s.services.Profile.UpdateProfile(update.Message.From.ID, userdto.ProfileUpdate{Age: &age})
-			s.services.Session.Set(update.Message.From.ID, model.Session_None)
+			err = s.services.Profile.UpdateProfile(update.Message.From.ID, userdto.ProfileUpdate{Age: &age})
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
+			err = s.services.Session.Set(update.Message.From.ID, model.Session_None)
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
 		}
 
 		_, err = bot.SendMessage(msg)
@@ -92,6 +98,7 @@ func (s *Scene) handleAge(next func(chatId telego.ChatID)) {
 }
 
 func (s *Scene) handleGender(next func(chatId telego.ChatID)) {
+	const op = "handlers.scenes.profile.handleGender"
 	s.bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
 		chat := query.Message.GetChat()
 
@@ -105,8 +112,14 @@ func (s *Scene) handleGender(next func(chatId telego.ChatID)) {
 			gender = "F"
 		}
 
-		s.services.Session.Set(query.From.ID, model.Session_None)
-		s.services.Profile.UpdateProfile(query.From.ID, userdto.ProfileUpdate{Gender: &gender})
+		err := s.services.Session.Set(query.From.ID, model.Session_None)
+		if err != nil {
+			s.log.Error(op, zap.Error(err))
+		}
+		err = s.services.Profile.UpdateProfile(query.From.ID, userdto.ProfileUpdate{Gender: &gender})
+		if err != nil {
+			s.log.Error(op, zap.Error(err))
+		}
 
 		next(chat.ChatID())
 
@@ -136,8 +149,14 @@ func (s *Scene) handleAbout(next func(chatId telego.ChatID)) {
 		}
 
 		if ok {
-			s.services.Profile.UpdateProfile(update.Message.From.ID, userdto.ProfileUpdate{About: &about})
-			s.services.Session.Set(update.Message.From.ID, model.Session_None)
+			err := s.services.Profile.UpdateProfile(update.Message.From.ID, userdto.ProfileUpdate{About: &about})
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
+			err = s.services.Session.Set(update.Message.From.ID, model.Session_None)
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
 		}
 
 		_, err := bot.SendMessage(msg)
@@ -176,7 +195,10 @@ func (s *Scene) handlePhoto(next func(chatId telego.ChatID)) {
 		if ok {
 			photos := update.Message.Photo
 			fileId = photos[len(photos)-1].FileID
-			s.services.Profile.UpdateProfile(update.Message.From.ID, userdto.ProfileUpdate{PhotoId: &fileId})
+			err := s.services.Profile.UpdateProfile(update.Message.From.ID, userdto.ProfileUpdate{PhotoId: &fileId})
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
 		}
 
 		_, err := bot.SendMessage(msg)
@@ -186,7 +208,10 @@ func (s *Scene) handlePhoto(next func(chatId telego.ChatID)) {
 
 		if ok {
 			chat := update.Message.GetChat()
-			s.services.Session.Set(update.Message.From.ID, model.Session_None)
+			err = s.services.Session.Set(update.Message.From.ID, model.Session_None)
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
 			next(chat.ChatID())
 		}
 
@@ -224,8 +249,14 @@ func (s *Scene) handleDefaultPhoto(next func(chatId telego.ChatID)) {
 
 		if ok {
 			fileId = photos.Photos[0][len(photos.Photos[0])-1].FileID
-			s.services.Profile.UpdateProfile(query.From.ID, userdto.ProfileUpdate{PhotoId: &fileId})
-			s.services.Session.Set(query.From.ID, model.Session_None)
+			err = s.services.Profile.UpdateProfile(query.From.ID, userdto.ProfileUpdate{PhotoId: &fileId})
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
+			err = s.services.Session.Set(query.From.ID, model.Session_None)
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
 		}
 
 		_, err = s.bot.SendMessage(msg)
@@ -252,15 +283,17 @@ func (s *Scene) handleLocation(next func(chatId telego.ChatID)) {
 func (s *Scene) GetLocation(chatId telego.ChatID) {
 	const op = "handlers.scenes.profile.GetLocation"
 
-	s.services.Session.Set(chatId.ID, model.Session_FillProfileLocation)
-
+	err := s.services.Session.Set(chatId.ID, model.Session_FillProfileLocation)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
 	keyboard := tu.InlineKeyboard(tu.InlineKeyboardRow(
 		tu.InlineKeyboardButton(texts.LocationSend).WithCallbackData(callbacks_consts.LOCATION_SEND),
 	))
 
 	msg := tu.Message(chatId, texts.LocationQuestion).WithReplyMarkup(keyboard)
 
-	_, err := s.bot.SendMessage(msg)
+	_, err = s.bot.SendMessage(msg)
 	if err != nil {
 		s.log.Error(op, zap.Error(err))
 	}
@@ -284,7 +317,10 @@ func (s *Scene) GetAge(chatId telego.ChatID) {
 func (s *Scene) GetGender(chatId telego.ChatID) {
 	const op = "handlers.scenes.profile.GetGender"
 
-	s.services.Session.Set(chatId.ID, model.Session_FillProfileGender)
+	err := s.services.Session.Set(chatId.ID, model.Session_FillProfileGender)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
 
 	keyboard := tu.InlineKeyboard(tu.InlineKeyboardRow(
 		tu.InlineKeyboardButton(texts.GenderMale).WithCallbackData(callbacks_consts.GENDER_MALE),
@@ -296,7 +332,7 @@ func (s *Scene) GetGender(chatId telego.ChatID) {
 		texts.GenderQuestion,
 	).WithReplyMarkup(keyboard)
 
-	_, err := s.bot.SendMessage(msg)
+	_, err = s.bot.SendMessage(msg)
 	if err != nil {
 		s.log.Error(op, zap.Error(err))
 	}
@@ -305,8 +341,10 @@ func (s *Scene) GetGender(chatId telego.ChatID) {
 func (s *Scene) GetPhoto(chatId telego.ChatID) {
 	const op = "handlers.scenes.profile.GetPhoto"
 
-	s.services.Session.Set(chatId.ID, model.Session_FillProfilePhoto)
-
+	err := s.services.Session.Set(chatId.ID, model.Session_FillProfilePhoto)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
 	keyboard := tu.InlineKeyboard(
 		tu.InlineKeyboardRow(
 			tu.InlineKeyboardButton(texts.PhotoDefault).WithCallbackData(callbacks_consts.DEFAULT_PHOTO),
@@ -315,7 +353,7 @@ func (s *Scene) GetPhoto(chatId telego.ChatID) {
 
 	msg := tu.Message(chatId, texts.PhotoInfo).WithReplyMarkup(keyboard)
 
-	_, err := s.bot.SendMessage(msg)
+	_, err = s.bot.SendMessage(msg)
 	if err != nil {
 		s.log.Error(op, zap.Error(err))
 	}
@@ -323,11 +361,13 @@ func (s *Scene) GetPhoto(chatId telego.ChatID) {
 
 func (s *Scene) GetAbout(chatId telego.ChatID) {
 	const op = "handlers.scenes.profile.GetAbout"
-	s.services.Session.Set(chatId.ID, model.Session_FillProfileAbout)
-
+	err := s.services.Session.Set(chatId.ID, model.Session_FillProfileAbout)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
 	msg := tu.Message(chatId, texts.AboutQuestion)
 
-	_, err := s.bot.SendMessage(msg)
+	_, err = s.bot.SendMessage(msg)
 	if err != nil {
 		s.log.Error(op, zap.Error(err))
 	}
