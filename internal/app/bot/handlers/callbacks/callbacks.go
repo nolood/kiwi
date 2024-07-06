@@ -64,34 +64,4 @@ func (c *Callbacks) fillProfile() {
 		c.scenes.Profile.StartFillProfileScene(chat.ChatID())
 
 	}, th.CallbackDataEqual(callbacks_consts.FILL_PROFILE))
-
-	// About handler
-	// bh.Handle(func(bot *telego.Bot, update telego.Update) {
-	// 	const op = "handlers.callbacks.FillProfile.Message.About"
-
-	// 	about := update.Message.Text
-	// 	var msg *telego.SendMessageParams
-
-	// 	c.log.Info(about)
-
-	// 	keyboard := tu.InlineKeyboard(tu.InlineKeyboardRow(
-	// 		tu.InlineKeyboardButton(texts.GenderMale).WithCallbackData(GENDER_MALE),
-	// 		tu.InlineKeyboardButton(texts.GenderFemale).WithCallbackData(GENDER_FEMALE),
-	// 	))
-
-	// 	msg = tu.Message(
-	// 		tu.ID(update.Message.Chat.ID),
-	// 		"Complete",
-	// 	).WithReplyMarkup(keyboard)
-
-	// 	c.services.Session.Set(update.Message.From.ID, model.Session_None)
-	// 	c.services.Profile.UpdateProfile(update.Message.From.ID, userdto.ProfileUpdate{About: &about})
-
-	// 	_, err := bot.SendMessage(msg)
-	// 	if err != nil {
-	// 		c.log.Error(op, zap.Error(err))
-	// 	}
-
-	// }, th.And(th.AnyMessageWithText(), predicates.ThMessageSessionEqual(*c.services, model.Session_FillProfileAbout)))
-
 }

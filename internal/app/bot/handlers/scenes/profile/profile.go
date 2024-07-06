@@ -273,11 +273,13 @@ func (s *Scene) handleDefaultPhoto(next func(chatId telego.ChatID)) {
 
 func (s *Scene) handleLocation(next func(chatId telego.ChatID)) {
 	const op = "handlers.scenes.profile.handleLocation"
-	s.bh.Handle(func(bot *telego.Bot, update telego.Update) {
+	s.bh.HandleMessage(func(bot *telego.Bot, message telego.Message) {
 
-		s.log.Info("location trigger")
+		if message.Location != nil {
 
-	}, th.And(th.CallbackDataEqual(callbacks_consts.LOCATION_SEND), predicates.ThCallbackSessionEqual(*s.services, model.Session_FillProfileLocation)))
+		}
+
+	}, th.And(th.AnyMessage(), predicates.ThMessageSessionEqual(*s.services, model.Session_FillProfileLocation)))
 }
 
 func (s *Scene) GetLocation(chatId telego.ChatID) {
@@ -287,9 +289,10 @@ func (s *Scene) GetLocation(chatId telego.ChatID) {
 	if err != nil {
 		s.log.Error(op, zap.Error(err))
 	}
-	keyboard := tu.InlineKeyboard(tu.InlineKeyboardRow(
-		tu.InlineKeyboardButton(texts.LocationSend).WithCallbackData(callbacks_consts.LOCATION_SEND),
-	))
+
+	keyboard := tu.Keyboard(
+		tu.KeyboardRow(tu.KeyboardButton(texts.LocationSend).WithRequestLocation()),
+	).WithResizeKeyboard().WithInputFieldPlaceholder(texts.LocationTown)
 
 	msg := tu.Message(chatId, texts.LocationQuestion).WithReplyMarkup(keyboard)
 
@@ -302,18 +305,20 @@ func (s *Scene) GetLocation(chatId telego.ChatID) {
 func (s *Scene) GetAge(chatId telego.ChatID) {
 	const op = "handlers.scenes.profile.GetAge"
 
-	s.services.Session.Set(chatId.ID, model.Session_FillProfileAge)
+	err := s.services.Session.Set(chatId.ID, model.Session_FillProfileAge)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
 
 	msg := tu.Message(chatId, texts.AgeQuestion)
 
-	_, err := s.bot.SendMessage(msg)
+	_, err = s.bot.SendMessage(msg)
 	if err != nil {
 		s.log.Error(op, zap.Error(err))
 	}
 
 }
 
-// GetGender - get gender from user input
 func (s *Scene) GetGender(chatId telego.ChatID) {
 	const op = "handlers.scenes.profile.GetGender"
 
