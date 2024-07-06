@@ -12,12 +12,14 @@ import "errors"
 type Session string
 
 const (
-	Session_FillProfileAge    Session = "fill_profile_age"
-	Session_FillProfilePhoto  Session = "fill_profile_photo"
-	Session_FillProfileGender Session = "fill_profile_gender"
-	Session_FillProfileAbout  Session = "fill_profile_about"
-	Session_FillBlacklist     Session = "fill_blacklist"
-	Session_None              Session = "none"
+	Session_FillProfileAge      Session = "fill_profile_age"
+	Session_FillProfileName     Session = "fill_profile_name"
+	Session_FillProfileLocation Session = "fill_profile_location"
+	Session_FillProfilePhoto    Session = "fill_profile_photo"
+	Session_FillProfileGender   Session = "fill_profile_gender"
+	Session_FillProfileAbout    Session = "fill_profile_about"
+	Session_FillBlacklist       Session = "fill_blacklist"
+	Session_None                Session = "none"
 )
 
 func (e *Session) Scan(value interface{}) error {
@@ -34,6 +36,10 @@ func (e *Session) Scan(value interface{}) error {
 	switch enumValue {
 	case "fill_profile_age":
 		*e = Session_FillProfileAge
+	case "fill_profile_name":
+		*e = Session_FillProfileName
+	case "fill_profile_location":
+		*e = Session_FillProfileLocation
 	case "fill_profile_photo":
 		*e = Session_FillProfilePhoto
 	case "fill_profile_gender":

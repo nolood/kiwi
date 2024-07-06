@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 
-CREATE TYPE session AS ENUM ('fill_profile_age', 'fill_profile_photo', 'fill_profile_gender', 'fill_profile_about', 'fill_blacklist', 'none');
+CREATE TYPE session AS ENUM ('fill_profile_age', 'fill_profile_name', 'fill_profile_location', 'fill_profile_photo', 'fill_profile_gender', 'fill_profile_about', 'fill_blacklist', 'none');
 
 CREATE TABLE IF NOT EXISTS users (
 	id SERIAL PRIMARY KEY,

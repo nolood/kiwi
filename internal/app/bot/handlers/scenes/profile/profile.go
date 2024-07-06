@@ -119,7 +119,10 @@ func (s *Scene) handleAbout(next func(chatId telego.ChatID)) {
 	s.bh.Handle(func(bot *telego.Bot, update telego.Update) {
 
 		about := update.Message.Text
-		var msg *telego.SendMessageParams
+		msg := tu.Message(
+			tu.ID(update.Message.Chat.ID),
+			texts.AboutComplete,
+		)
 
 		ok := true
 
@@ -196,9 +199,10 @@ func (s *Scene) handleDefaultPhoto(next func(chatId telego.ChatID)) {
 
 	s.bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
 
-		s.log.Info("default photo trigger")
-
-		var msg *telego.SendMessageParams
+		msg := tu.Message(
+			tu.ID(query.From.ID),
+			texts.PhotoComplete,
+		)
 		chat := query.Message.GetChat()
 
 		photos, err := s.bot.GetUserProfilePhotos(&telego.GetUserProfilePhotosParams{UserID: query.From.ID, Limit: 1})
@@ -234,6 +238,32 @@ func (s *Scene) handleDefaultPhoto(next func(chatId telego.ChatID)) {
 		}
 
 	}, th.And(th.CallbackDataEqual(callbacks_consts.DEFAULT_PHOTO), predicates.ThCallbackSessionEqual(*s.services, model.Session_FillProfilePhoto)))
+}
+
+func (s *Scene) handleLocation(next func(chatId telego.ChatID)) {
+	const op = "handlers.scenes.profile.handleLocation"
+	s.bh.Handle(func(bot *telego.Bot, update telego.Update) {
+
+		s.log.Info("location trigger")
+
+	}, th.And(th.CallbackDataEqual(callbacks_consts.LOCATION_SEND), predicates.ThCallbackSessionEqual(*s.services, model.Session_FillProfileLocation)))
+}
+
+func (s *Scene) GetLocation(chatId telego.ChatID) {
+	const op = "handlers.scenes.profile.GetLocation"
+
+	s.services.Session.Set(chatId.ID, model.Session_FillProfileLocation)
+
+	keyboard := tu.InlineKeyboard(tu.InlineKeyboardRow(
+		tu.InlineKeyboardButton(texts.LocationSend).WithCallbackData(callbacks_consts.LOCATION_SEND),
+	))
+
+	msg := tu.Message(chatId, texts.LocationQuestion).WithReplyMarkup(keyboard)
+
+	_, err := s.bot.SendMessage(msg)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
 }
 
 func (s *Scene) GetAge(chatId telego.ChatID) {
@@ -325,7 +355,11 @@ func (s *Scene) RegisterFillProfileScene() {
 	})
 
 	s.handleAbout(func(chatId telego.ChatID) {
-		s.log.Info("complete about")
+		s.GetLocation(chatId)
+	})
+
+	s.handleLocation(func(chatId telego.ChatID) {
+		s.log.Info("kek")
 	})
 
 }
