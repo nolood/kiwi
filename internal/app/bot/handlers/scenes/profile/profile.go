@@ -113,6 +113,42 @@ func (s *Scene) handleGender(next func(chatId telego.ChatID)) {
 	}, th.And(th.Or(th.CallbackDataEqual(callbacks_consts.GENDER_MALE), th.CallbackDataEqual(callbacks_consts.GENDER_FEMALE)), predicates.ThCallbackSessionEqual(*s.services, model.Session_FillProfileGender)))
 }
 
+func (s *Scene) handleAbout(next func(chatId telego.ChatID)) {
+	const op = "handlers.scenes.profile.handleAbout"
+
+	s.bh.Handle(func(bot *telego.Bot, update telego.Update) {
+
+		about := update.Message.Text
+		var msg *telego.SendMessageParams
+
+		ok := true
+
+		if len(about) > 300 {
+			ok = false
+
+			msg = tu.Message(
+				tu.ID(update.Message.Chat.ID),
+				texts.AboutLongText(len(about), 300),
+			)
+		}
+
+		if ok {
+			s.services.Profile.UpdateProfile(update.Message.From.ID, userdto.ProfileUpdate{About: &about})
+			s.services.Session.Set(update.Message.From.ID, model.Session_None)
+		}
+
+		_, err := bot.SendMessage(msg)
+		if err != nil {
+			s.log.Error(op, zap.Error(err))
+		}
+
+		if ok {
+			next(update.Message.Chat.ChatID())
+		}
+
+	}, th.And(th.AnyMessage(), predicates.ThMessageSessionEqual(*s.services, model.Session_FillProfileAbout)))
+}
+
 func (s *Scene) handlePhoto(next func(chatId telego.ChatID)) {
 	const op = "handlers.scenes.profile.handlePhoto"
 	s.bh.Handle(func(bot *telego.Bot, update telego.Update) {
@@ -147,11 +183,6 @@ func (s *Scene) handlePhoto(next func(chatId telego.ChatID)) {
 
 		if ok {
 			chat := update.Message.GetChat()
-			_, err = s.bot.SendPhoto(&telego.SendPhotoParams{Photo: telego.InputFile{
-				FileID: fileId}, ChatID: chat.ChatID()})
-			if err != nil {
-				s.log.Error(op, zap.Error(err))
-			}
 			s.services.Session.Set(update.Message.From.ID, model.Session_None)
 			next(chat.ChatID())
 		}
@@ -189,7 +220,8 @@ func (s *Scene) handleDefaultPhoto(next func(chatId telego.ChatID)) {
 
 		if ok {
 			fileId = photos.Photos[0][len(photos.Photos[0])-1].FileID
-			s.log.Info(fileId)
+			s.services.Profile.UpdateProfile(query.From.ID, userdto.ProfileUpdate{PhotoId: &fileId})
+			s.services.Session.Set(query.From.ID, model.Session_None)
 		}
 
 		_, err = s.bot.SendMessage(msg)
@@ -198,12 +230,6 @@ func (s *Scene) handleDefaultPhoto(next func(chatId telego.ChatID)) {
 		}
 
 		if ok {
-			_, err = s.bot.SendPhoto(&telego.SendPhotoParams{Photo: telego.InputFile{
-				FileID: fileId}, ChatID: chat.ChatID()})
-			if err != nil {
-				s.log.Error(op, zap.Error(err))
-			}
-			s.services.Session.Set(query.From.ID, model.Session_None)
 			next(chat.ChatID())
 		}
 
@@ -265,6 +291,18 @@ func (s *Scene) GetPhoto(chatId telego.ChatID) {
 	}
 }
 
+func (s *Scene) GetAbout(chatId telego.ChatID) {
+	const op = "handlers.scenes.profile.GetAbout"
+	s.services.Session.Set(chatId.ID, model.Session_FillProfileAbout)
+
+	msg := tu.Message(chatId, texts.AboutQuestion)
+
+	_, err := s.bot.SendMessage(msg)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
+}
+
 func (s *Scene) StartFillProfileScene(chatId telego.ChatID) {
 	s.GetAge(chatId)
 }
@@ -279,11 +317,15 @@ func (s *Scene) RegisterFillProfileScene() {
 	})
 
 	s.handleDefaultPhoto(func(chatId telego.ChatID) {
-		s.log.Info("photo complete")
+		s.GetAbout(chatId)
 	})
 
 	s.handlePhoto(func(chatId telego.ChatID) {
-		s.log.Info("photo complete")
-
+		s.GetAbout(chatId)
 	})
+
+	s.handleAbout(func(chatId telego.ChatID) {
+		s.log.Info("complete about")
+	})
+
 }
