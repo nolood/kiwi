@@ -51,7 +51,6 @@ CREATE TABLE IF NOT EXISTS cities (
                                       timezone VARCHAR(40),
                                       modification_date DATE
 );
-\copy cities FROM '../static/cities5000.txt' WITH (FORMAT text, DELIMITER E'\t', NULL '');
 
 -- +goose StatementEnd
 

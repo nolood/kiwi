@@ -1,5 +1,6 @@
 # Variables
 CONFIG_FILE = ./config/local.yml
+DATA_FILE = ./static/cities5000.txt
 CMD_DIR = ./cmd
 GOOSE_DRIVER = postgres
 MIGRATION_DIR = ./migrations
@@ -26,7 +27,7 @@ start:
 
 # Start the location service to fill database
 start-location:
-	go run $(CMD_DIR)/location/main.go
+	go run $(CMD_DIR)/location/main.go -config=$(CONFIG_FILE)
 
 # Create a new migration
 migrate-new:
