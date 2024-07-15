@@ -11,7 +11,7 @@ import (
 )
 
 type App struct {
-	Bot *botapp.BotApp
+	Bot *botapp.App
 }
 
 func New(log *zap.Logger, cfg *config.Config) *App {
@@ -20,9 +20,9 @@ func New(log *zap.Logger, cfg *config.Config) *App {
 
 	repos := repositories.New(log, storage)
 
-	services := services.New(log, repos)
+	servs := services.New(log, repos)
 
-	bot := botapp.New(log, cfg.Telegram, services)
+	bot := botapp.New(log, cfg.Telegram, servs)
 
 	return &App{
 		Bot: bot,

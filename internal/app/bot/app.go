@@ -9,14 +9,14 @@ import (
 	"go.uber.org/zap"
 )
 
-type BotApp struct {
+type App struct {
 	log      *zap.Logger
 	cfg      config.Telegram
 	Bot      *telego.Bot
 	services *services.Services
 }
 
-func New(log *zap.Logger, cfg config.Telegram, servs *services.Services) *BotApp {
+func New(log *zap.Logger, cfg config.Telegram, servs *services.Services) *App {
 	const op = "bot.New"
 
 	bot, err := telego.NewBot(cfg.Token)
@@ -25,7 +25,7 @@ func New(log *zap.Logger, cfg config.Telegram, servs *services.Services) *BotApp
 		log.Panic(op, zap.Error(err))
 	}
 
-	return &BotApp{
+	return &App{
 		log:      log,
 		cfg:      cfg,
 		services: servs,
@@ -33,7 +33,7 @@ func New(log *zap.Logger, cfg config.Telegram, servs *services.Services) *BotApp
 	}
 }
 
-func (b *BotApp) MustRun() {
+func (b *App) MustRun() {
 	const op = "bot.MustRun"
 
 	updates, err := b.Bot.UpdatesViaLongPolling(nil)
@@ -46,6 +46,6 @@ func (b *BotApp) MustRun() {
 	defer b.Bot.StopLongPolling()
 }
 
-func (b *BotApp) Stop() {
+func (b *App) Stop() {
 	b.Bot.StopLongPolling()
 }

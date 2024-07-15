@@ -28,6 +28,31 @@ CREATE TABLE IF NOT EXISTS profiles (
 	CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id),
 	CONSTRAINT fk_user_tg FOREIGN KEY (user_tg_id) REFERENCES users(telegram_id)
 );
+
+
+CREATE TABLE IF NOT EXISTS cities (
+                                      geonameid INT PRIMARY KEY,
+                                      name VARCHAR(200),
+                                      asciiname VARCHAR(200),
+                                      alternatenames TEXT,
+                                      latitude DOUBLE PRECISION,
+                                      longitude DOUBLE PRECISION,
+                                      feature_class CHAR(1),
+                                      feature_code VARCHAR(10),
+                                      country_code CHAR(2),
+                                      cc2 VARCHAR(60),
+                                      admin1_code VARCHAR(20),
+                                      admin2_code VARCHAR(80),
+                                      admin3_code VARCHAR(20),
+                                      admin4_code VARCHAR(20),
+                                      population INT,
+                                      elevation INT,
+                                      dem INT,
+                                      timezone VARCHAR(40),
+                                      modification_date DATE
+);
+\copy cities FROM '../static/cities5000.txt' WITH (FORMAT text, DELIMITER E'\t', NULL '');
+
 -- +goose StatementEnd
 
 
@@ -37,4 +62,5 @@ CREATE TABLE IF NOT EXISTS profiles (
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS profiles CASCADE;
 DROP TYPE IF EXISTS session;
+DROP TABLE IF EXISTS cities;
 -- +goose StatementEnd
