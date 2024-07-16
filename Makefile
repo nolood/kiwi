@@ -19,7 +19,7 @@ else
 endif
 
 # Phony targets
-.PHONY: start migrate-new migrate-up migrate-down jet-gen start-location
+.PHONY: start migrate-new migrate-up migrate-down jet-gen start-location docker-dev
 
 # Start the application
 start:
@@ -44,3 +44,7 @@ migrate-down:
 # Generate Jet ORM code
 jet-gen:
 	jet -dsn=$(DB_STRING)?sslmode=disable -schema=public -path=./.gen
+
+# Start the development environment
+docker-dev:
+	docker-compose -f ./docker/docker-compose.dev.yml up -d

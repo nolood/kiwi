@@ -1,4 +1,6 @@
 env: "local"
+meilisearch:
+  address: "http://localhost:7700"
 storage:
   host: "localhost"
   port: 5443

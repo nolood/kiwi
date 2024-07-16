@@ -9,8 +9,18 @@ import (
 	"github.com/joho/godotenv"
 )
 
-type Telegram struct {
+type Env struct {
 	Token string `env:"TELEGRAM_BOT_TOKEN"`
+	Key   string `env:"MEILISEARCH_API_KEY"`
+}
+
+type Meilisearch struct {
+	Key     string `yaml:"-"`
+	Address string `yaml:"address"`
+}
+
+type Telegram struct {
+	Token string
 }
 
 type Storage struct {
@@ -22,9 +32,10 @@ type Storage struct {
 }
 
 type Config struct {
-	Env      string   `yaml:"env" env-required:"true"`
-	Storage  Storage  `yaml:"storage" env-required:"true"`
-	Telegram Telegram `yaml:"-"`
+	Env         string      `yaml:"env" env-required:"true"`
+	Meilisearch Meilisearch `yaml:"meilisearch"`
+	Storage     Storage     `yaml:"storage" env-required:"true"`
+	Telegram    Telegram    `yaml:"-"`
 }
 
 func MustLoad() *Config {
@@ -48,12 +59,13 @@ func MustLoad() *Config {
 		log.Panicf("Error loading .env file: %v", err)
 	}
 
-	var telegramCfg Telegram
-	if err = cleanenv.ReadEnv(&telegramCfg); err != nil {
+	var envCfg Env
+	if err = cleanenv.ReadEnv(&envCfg); err != nil {
 		panic("failed to read env: " + err.Error())
 	}
 
-	cfg.Telegram = telegramCfg
+	cfg.Telegram.Token = envCfg.Token
+	cfg.Meilisearch.Key = envCfg.Key
 
 	return &cfg
 }
