@@ -4,6 +4,7 @@ import (
 	botapp "kiwi/internal/app/bot"
 	"kiwi/internal/app/bot/repositories"
 	"kiwi/internal/app/bot/services"
+	"kiwi/internal/app/meilisearch"
 	"kiwi/internal/config"
 	"kiwi/internal/storage/postgres"
 
@@ -11,10 +12,13 @@ import (
 )
 
 type App struct {
-	Bot *botapp.App
+	Bot     *botapp.App
+	MClient *meilisearch.App
 }
 
 func New(log *zap.Logger, cfg *config.Config) *App {
+
+	mClient := meilisearch.New(log, cfg.Meilisearch)
 
 	storage := postgres.New(cfg.Storage)
 
@@ -25,6 +29,7 @@ func New(log *zap.Logger, cfg *config.Config) *App {
 	bot := botapp.New(log, cfg.Telegram, servs)
 
 	return &App{
-		Bot: bot,
+		Bot:     bot,
+		MClient: mClient,
 	}
 }
