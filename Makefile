@@ -29,6 +29,10 @@ start:
 start-location:
 	go run $(CMD_DIR)/location/main.go -config=$(CONFIG_FILE)
 
+# Start fill meilisearch from database
+start-meilisearch:
+	go run $(CMD_DIR)/meilisearch/main.go -config=$(CONFIG_FILE)
+
 # Create a new migration
 migrate-new:
 	$(SET_ENV) GOOSE_DRIVER=$(GOOSE_DRIVER) && $(SET_ENV) GOOSE_MIGRATION_DIR=$(MIGRATION_DIR) && $(SET_ENV) GOOSE_DBSTRING=$(DB_STRING) && goose create new-migration sql
@@ -44,6 +48,7 @@ migrate-down:
 # Generate Jet ORM code
 jet-gen:
 	jet -dsn=$(DB_STRING)?sslmode=disable -schema=public -path=./.gen
+
 
 # Start the development environment
 docker-dev:

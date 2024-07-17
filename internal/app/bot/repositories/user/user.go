@@ -15,12 +15,12 @@ import (
 )
 
 type Repository interface {
-	Get(tg_id int64) (userdto.UserWithProfile, error)
+	Get(tgId int64) (userdto.UserWithProfile, error)
 	Create(user *telego.User) (userdto.UserWithProfile, error)
-	UpdateAge(tg_id int64, age int) error
-	UpdateGender(tg_id int64, gender string) error
-	UpdateAbout(tg_id int64, about string) error
-	UpdatePhoto(tg_id int64, about string) error
+	UpdateAge(tgId int64, age int) error
+	UpdateGender(tgId int64, gender string) error
+	UpdateAbout(tgId int64, about string) error
+	UpdatePhoto(tgId int64, about string) error
 }
 
 type repository struct {
@@ -35,7 +35,7 @@ func New(log *zap.Logger, db *sqlx.DB) Repository {
 	}
 }
 
-func (r *repository) Get(tg_id int64) (userdto.UserWithProfile, error) {
+func (r *repository) Get(tgId int64) (userdto.UserWithProfile, error) {
 	const op = "repositories.user.Get"
 
 	var userprof userdto.UserWithProfile
@@ -43,7 +43,7 @@ func (r *repository) Get(tg_id int64) (userdto.UserWithProfile, error) {
 	var user model.Users
 	var profile model.Profiles
 
-	stmtUser := SELECT(Users.AllColumns).FROM(Users).WHERE(Users.TelegramID.EQ(Int64(tg_id)))
+	stmtUser := SELECT(Users.AllColumns).FROM(Users).WHERE(Users.TelegramID.EQ(Int64(tgId)))
 
 	err := stmtUser.Query(r.db, &user)
 	if err != nil {
@@ -121,10 +121,10 @@ func (r *repository) Create(tgUser *telego.User) (userdto.UserWithProfile, error
 	return userprof, nil
 }
 
-func (r *repository) UpdateAbout(tg_id int64, newValue string) error {
+func (r *repository) UpdateAbout(tgId int64, newValue string) error {
 	const op = "repositories.user.UpdateAbout"
 
-	stmt := Profiles.UPDATE(Profiles.About).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tg_id)))
+	stmt := Profiles.UPDATE(Profiles.About).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tgId)))
 	_, err := stmt.Exec(r.db)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
@@ -133,10 +133,10 @@ func (r *repository) UpdateAbout(tg_id int64, newValue string) error {
 	return nil
 }
 
-func (r *repository) UpdateGender(tg_id int64, newValue string) error {
+func (r *repository) UpdateGender(tgId int64, newValue string) error {
 	const op = "repositories.user.UpdateGender"
 
-	stmt := Profiles.UPDATE(Profiles.Gender).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tg_id)))
+	stmt := Profiles.UPDATE(Profiles.Gender).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tgId)))
 	_, err := stmt.Exec(r.db)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
@@ -145,10 +145,10 @@ func (r *repository) UpdateGender(tg_id int64, newValue string) error {
 	return nil
 }
 
-func (r *repository) UpdateAge(tg_id int64, newValue int) error {
+func (r *repository) UpdateAge(tgId int64, newValue int) error {
 	const op = "repositories.user.UpdateAge"
 
-	stmt := Profiles.UPDATE(Profiles.Age).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tg_id)))
+	stmt := Profiles.UPDATE(Profiles.Age).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tgId)))
 	_, err := stmt.Exec(r.db)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
@@ -157,10 +157,10 @@ func (r *repository) UpdateAge(tg_id int64, newValue int) error {
 	return nil
 }
 
-func (r *repository) UpdatePhoto(tg_id int64, newValue string) error {
+func (r *repository) UpdatePhoto(tgId int64, newValue string) error {
 	const op = "repositories.user.UpdatePhoto"
 
-	stmt := Profiles.UPDATE(Profiles.PhotoID).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tg_id)))
+	stmt := Profiles.UPDATE(Profiles.PhotoID).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tgId)))
 	_, err := stmt.Exec(r.db)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)

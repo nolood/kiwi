@@ -6,6 +6,10 @@ import (
 	"kiwi/internal/config"
 )
 
+const (
+	IndexCity = "test-3"
+)
+
 type App struct {
 	log    *zap.Logger
 	cfg    config.Meilisearch
