@@ -17,14 +17,16 @@ type profilesTable struct {
 	postgres.Table
 
 	// Columns
-	ID       postgres.ColumnInteger
-	UserID   postgres.ColumnInteger
-	UserTgID postgres.ColumnInteger
-	Age      postgres.ColumnInteger
-	Gender   postgres.ColumnString
-	PhotoID  postgres.ColumnString
-	About    postgres.ColumnString
-	IsActive postgres.ColumnBool
+	ID        postgres.ColumnInteger
+	UserID    postgres.ColumnInteger
+	UserTgID  postgres.ColumnInteger
+	Age       postgres.ColumnInteger
+	Gender    postgres.ColumnString
+	PhotoID   postgres.ColumnString
+	About     postgres.ColumnString
+	IsActive  postgres.ColumnBool
+	Latitude  postgres.ColumnFloat
+	Longitude postgres.ColumnFloat
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -65,30 +67,34 @@ func newProfilesTable(schemaName, tableName, alias string) *ProfilesTable {
 
 func newProfilesTableImpl(schemaName, tableName, alias string) profilesTable {
 	var (
-		IDColumn       = postgres.IntegerColumn("id")
-		UserIDColumn   = postgres.IntegerColumn("user_id")
-		UserTgIDColumn = postgres.IntegerColumn("user_tg_id")
-		AgeColumn      = postgres.IntegerColumn("age")
-		GenderColumn   = postgres.StringColumn("gender")
-		PhotoIDColumn  = postgres.StringColumn("photo_id")
-		AboutColumn    = postgres.StringColumn("about")
-		IsActiveColumn = postgres.BoolColumn("is_active")
-		allColumns     = postgres.ColumnList{IDColumn, UserIDColumn, UserTgIDColumn, AgeColumn, GenderColumn, PhotoIDColumn, AboutColumn, IsActiveColumn}
-		mutableColumns = postgres.ColumnList{UserIDColumn, UserTgIDColumn, AgeColumn, GenderColumn, PhotoIDColumn, AboutColumn, IsActiveColumn}
+		IDColumn        = postgres.IntegerColumn("id")
+		UserIDColumn    = postgres.IntegerColumn("user_id")
+		UserTgIDColumn  = postgres.IntegerColumn("user_tg_id")
+		AgeColumn       = postgres.IntegerColumn("age")
+		GenderColumn    = postgres.StringColumn("gender")
+		PhotoIDColumn   = postgres.StringColumn("photo_id")
+		AboutColumn     = postgres.StringColumn("about")
+		IsActiveColumn  = postgres.BoolColumn("is_active")
+		LatitudeColumn  = postgres.FloatColumn("latitude")
+		LongitudeColumn = postgres.FloatColumn("longitude")
+		allColumns      = postgres.ColumnList{IDColumn, UserIDColumn, UserTgIDColumn, AgeColumn, GenderColumn, PhotoIDColumn, AboutColumn, IsActiveColumn, LatitudeColumn, LongitudeColumn}
+		mutableColumns  = postgres.ColumnList{UserIDColumn, UserTgIDColumn, AgeColumn, GenderColumn, PhotoIDColumn, AboutColumn, IsActiveColumn, LatitudeColumn, LongitudeColumn}
 	)
 
 	return profilesTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
-		ID:       IDColumn,
-		UserID:   UserIDColumn,
-		UserTgID: UserTgIDColumn,
-		Age:      AgeColumn,
-		Gender:   GenderColumn,
-		PhotoID:  PhotoIDColumn,
-		About:    AboutColumn,
-		IsActive: IsActiveColumn,
+		ID:        IDColumn,
+		UserID:    UserIDColumn,
+		UserTgID:  UserTgIDColumn,
+		Age:       AgeColumn,
+		Gender:    GenderColumn,
+		PhotoID:   PhotoIDColumn,
+		About:     AboutColumn,
+		IsActive:  IsActiveColumn,
+		Latitude:  LatitudeColumn,
+		Longitude: LongitudeColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

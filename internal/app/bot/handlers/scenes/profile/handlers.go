@@ -262,7 +262,10 @@ func (s *Scene) handleLocation(next func(chatId telego.ChatID)) {
 	s.bh.HandleMessage(func(bot *telego.Bot, message telego.Message) {
 
 		if message.Location != nil {
-
+			err := s.services.Profile.UpdateProfile(message.From.ID, userdto.ProfileUpdate{Longitude: &message.Location.Longitude, Latitude: &message.Location.Latitude})
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
 		}
 
 	}, th.And(th.AnyMessage(), predicates.ThMessageSessionEqual(*s.services, model.Session_FillProfileLocation)))

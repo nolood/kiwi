@@ -19,7 +19,13 @@ else
 endif
 
 # Phony targets
-.PHONY: start migrate-new migrate-up migrate-down jet-gen start-location docker-dev
+.PHONY: start migrate-new migrate-up migrate-down jet-gen start-location docker-dev db-push
+
+
+db-push:
+	$(MAKE) migrate-down
+	$(MAKE) migrate-up
+	$(MAKE) jet-gen
 
 # Start the application
 start:

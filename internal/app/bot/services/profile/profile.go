@@ -74,5 +74,12 @@ func (s *service) UpdateProfile(tg_id int64, profile userdto.ProfileUpdate) erro
 		}
 	}
 
+	if profile.Latitude != nil && profile.Longitude != nil {
+		err := s.repos.User.UpdateLocation(tg_id, profile.Latitude, profile.Longitude)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
 	return nil
 }

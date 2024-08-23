@@ -21,6 +21,7 @@ type Repository interface {
 	UpdateGender(tgId int64, gender string) error
 	UpdateAbout(tgId int64, about string) error
 	UpdatePhoto(tgId int64, about string) error
+	UpdateLocation(tgId int64, latitude *float64, longitude *float64) error
 }
 
 type repository struct {
@@ -35,8 +36,21 @@ func New(log *zap.Logger, db *sqlx.DB) Repository {
 	}
 }
 
+func (r *repository) UpdateLocation(tgId int64, latitude *float64, longitude *float64) error {
+
+	const op = "bot.repositories.user.UpdateLocation"
+
+	stmt := Profiles.UPDATE(Profiles.Latitude, Profiles.Longitude).SET(latitude, longitude).WHERE(Profiles.UserTgID.EQ(Int64(tgId)))
+	_, err := stmt.Exec(r.db)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
 func (r *repository) Get(tgId int64) (userdto.UserWithProfile, error) {
-	const op = "repositories.user.Get"
+	const op = "bot.repositories.user.Get"
 
 	var userprof userdto.UserWithProfile
 
@@ -74,7 +88,7 @@ func (r *repository) Get(tgId int64) (userdto.UserWithProfile, error) {
 }
 
 func (r *repository) Create(tgUser *telego.User) (userdto.UserWithProfile, error) {
-	const op = "repositories.user.Create"
+	const op = "bot.repositories.user.Create"
 
 	var userprof userdto.UserWithProfile
 
@@ -122,7 +136,7 @@ func (r *repository) Create(tgUser *telego.User) (userdto.UserWithProfile, error
 }
 
 func (r *repository) UpdateAbout(tgId int64, newValue string) error {
-	const op = "repositories.user.UpdateAbout"
+	const op = "bot.repositories.user.UpdateAbout"
 
 	stmt := Profiles.UPDATE(Profiles.About).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tgId)))
 	_, err := stmt.Exec(r.db)
@@ -134,7 +148,7 @@ func (r *repository) UpdateAbout(tgId int64, newValue string) error {
 }
 
 func (r *repository) UpdateGender(tgId int64, newValue string) error {
-	const op = "repositories.user.UpdateGender"
+	const op = "bot.repositories.user.UpdateGender"
 
 	stmt := Profiles.UPDATE(Profiles.Gender).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tgId)))
 	_, err := stmt.Exec(r.db)
@@ -146,7 +160,7 @@ func (r *repository) UpdateGender(tgId int64, newValue string) error {
 }
 
 func (r *repository) UpdateAge(tgId int64, newValue int) error {
-	const op = "repositories.user.UpdateAge"
+	const op = "bot.repositories.user.UpdateAge"
 
 	stmt := Profiles.UPDATE(Profiles.Age).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tgId)))
 	_, err := stmt.Exec(r.db)
@@ -158,7 +172,7 @@ func (r *repository) UpdateAge(tgId int64, newValue int) error {
 }
 
 func (r *repository) UpdatePhoto(tgId int64, newValue string) error {
-	const op = "repositories.user.UpdatePhoto"
+	const op = "bot.repositories.user.UpdatePhoto"
 
 	stmt := Profiles.UPDATE(Profiles.PhotoID).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tgId)))
 	_, err := stmt.Exec(r.db)

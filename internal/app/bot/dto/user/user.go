@@ -10,8 +10,10 @@ type UserWithProfile struct {
 }
 
 type ProfileUpdate struct {
-	Age     *int
-	Gender  *string
-	About   *string
-	PhotoId *string
+	Age       *int
+	Gender    *string
+	About     *string
+	PhotoId   *string
+	Longitude *float64
+	Latitude  *float64
 }
