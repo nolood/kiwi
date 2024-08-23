@@ -16,13 +16,13 @@ func Register(log *zap.Logger, updates <-chan telego.Update, b *telego.Bot, serv
 
 	bh, err := th.NewBotHandler(b, updates)
 	if err != nil {
-		log.Fatal("handlers.Register", zap.Error(err))
+		log.Fatal("bot.handlers.Register", zap.Error(err))
 	}
 
 	defer bh.Stop()
 
 	sc := scenes.New(log, servs, b, bh)
-	sc.Profile.RegisterFillProfileScene()
+	sc.Register()
 
 	comms := commands.New(log, servs, b, bh)
 	comms.Register()

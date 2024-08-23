@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  meilisearch:
+  kiwi-meilisearch:
     container_name: kiwi-meilisearch
     image: getmeili/meilisearch
     restart: always

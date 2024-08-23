@@ -21,3 +21,7 @@ func New(log *zap.Logger, servs *services.Services, bot *telego.Bot, bh *th.BotH
 		Profile: profScene,
 	}
 }
+
+func (s *Scenes) Register() {
+	s.Profile.RegisterFillProfileScene()
+}

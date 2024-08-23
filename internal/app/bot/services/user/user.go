@@ -29,7 +29,7 @@ func New(log *zap.Logger, repos *repositories.Repos) Service {
 }
 
 func (s *service) Get(tg_id int64) (userdto.UserWithProfile, error) {
-	const op = "services.user.Get"
+	const op = "bot.services.user.Get"
 
 	user, err := s.repos.User.Get(tg_id)
 	if err != nil {
@@ -40,7 +40,7 @@ func (s *service) Get(tg_id int64) (userdto.UserWithProfile, error) {
 }
 
 func (s *service) Create(tgUser *telego.User) (userdto.UserWithProfile, error) {
-	const op = "services.user.Create"
+	const op = "bot.services.user.Create"
 
 	user, err := s.repos.User.Create(tgUser)
 	if err != nil {
@@ -52,7 +52,7 @@ func (s *service) Create(tgUser *telego.User) (userdto.UserWithProfile, error) {
 }
 
 func (s *service) GetOrCreate(tgUser *telego.User) (userdto.UserWithProfile, error) {
-	const op = "services.user.GetOrCreate"
+	const op = "bot.services.user.GetOrCreate"
 
 	userprof, err := s.Get(tgUser.ID)
 	if err != nil {

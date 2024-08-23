@@ -44,7 +44,7 @@ func (s *service) GetFormattedProfile(chatId telego.ChatID) (*telego.SendMessage
 }
 
 func (s *service) UpdateProfile(tg_id int64, profile userdto.ProfileUpdate) error {
-	const op = "services.profile.UpdateProfile"
+	const op = "bot.services.profile.UpdateProfile"
 
 	if profile.Age != nil {
 		err := s.repos.User.UpdateAge(tg_id, *profile.Age)

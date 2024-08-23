@@ -1,9 +1,12 @@
 package session
 
 import (
+	"errors"
 	"fmt"
 	"kiwi/.gen/kiwi/public/model"
 	"kiwi/internal/app/bot/repositories"
+
+	"github.com/go-jet/jet/v2/qrm"
 
 	"go.uber.org/zap"
 )
@@ -27,7 +30,7 @@ func New(log *zap.Logger, repos *repositories.Repos) Service {
 }
 
 func (s *service) Get(tg_id int64) (model.Session, error) {
-	const op = "services.session.Get"
+	const op = "bot.services.session.Get"
 
 	session, err := s.repos.Session.Get(tg_id)
 	if err != nil {
@@ -38,7 +41,7 @@ func (s *service) Get(tg_id int64) (model.Session, error) {
 }
 
 func (s *service) Set(tg_id int64, value model.Session) error {
-	const op = "services.session.Set"
+	const op = "bot.services.session.Set"
 
 	err := s.repos.Session.Set(tg_id, value)
 	if err != nil {
@@ -49,12 +52,13 @@ func (s *service) Set(tg_id int64, value model.Session) error {
 }
 
 func (s *service) Compare(tg_id int64, value model.Session) bool {
-
-	const op = "services.session.Compare"
+	const op = "bot.services.session.Compare"
 
 	session, err := s.Get(tg_id)
 	if err != nil {
-		s.log.Error(op, zap.Error(err))
+		if !errors.Is(err, qrm.ErrNoRows) {
+			s.log.Error(op, zap.Error(err))
+		}
 		return false
 	}
 
