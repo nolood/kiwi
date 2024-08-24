@@ -3,17 +3,19 @@ package main
 import (
 	"errors"
 	"fmt"
-	. "github.com/go-jet/jet/v2/postgres"
-	"github.com/go-jet/jet/v2/qrm"
-	"github.com/meilisearch/meilisearch-go"
-	"go.uber.org/zap"
 	"kiwi/.gen/kiwi/public/model"
 	. "kiwi/.gen/kiwi/public/table"
 	m "kiwi/internal/app/meilisearch"
+	"kiwi/internal/app/meilisearch/constants"
 	"kiwi/internal/config"
 	"kiwi/internal/lib/logger"
 	"kiwi/internal/storage/postgres"
 	"time"
+
+	. "github.com/go-jet/jet/v2/postgres"
+	"github.com/go-jet/jet/v2/qrm"
+	"github.com/meilisearch/meilisearch-go"
+	"go.uber.org/zap"
 )
 
 func main() {
@@ -29,6 +31,8 @@ func main() {
 	const limit = 1000
 
 	log.Info("Meilisearch: start migrating")
+
+	// TODO: Вынести в сервис
 
 	for offset := 0; offset <= 58000; offset += limit {
 		stmt := SELECT(Cities.ID, Cities.Name, Cities.Alternatenames, Cities.Latitude, Cities.Longitude, Cities.CountryCode).FROM(Cities).OFFSET(int64(offset)).LIMIT(limit)
@@ -50,7 +54,7 @@ func main() {
 			break
 		}
 
-		_, err = meili.Client.Index(m.IndexCity).AddDocuments(cities)
+		_, err = meili.Client.Index(constants.IndexCity).AddDocuments(cities)
 		if err != nil {
 			log.Error(op, zap.Error(err))
 		} else {

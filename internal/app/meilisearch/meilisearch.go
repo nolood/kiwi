@@ -1,19 +1,18 @@
 package meilisearch
 
 import (
+	"kiwi/internal/app/meilisearch/services"
+	"kiwi/internal/config"
+
 	"github.com/meilisearch/meilisearch-go"
 	"go.uber.org/zap"
-	"kiwi/internal/config"
-)
-
-const (
-	IndexCity = "test-3"
 )
 
 type App struct {
-	log    *zap.Logger
-	cfg    config.Meilisearch
-	Client *meilisearch.Client
+	log      *zap.Logger
+	Client   *meilisearch.Client
+	cfg      config.Meilisearch
+	Services *services.Services
 }
 
 func New(log *zap.Logger, cfg config.Meilisearch) *App {
@@ -23,9 +22,12 @@ func New(log *zap.Logger, cfg config.Meilisearch) *App {
 		APIKey: cfg.Key,
 	})
 
+	servs := services.New(log, client)
+
 	return &App{
-		log:    log,
-		cfg:    cfg,
-		Client: client,
+		log:      log,
+		cfg:      cfg,
+		Client:   client,
+		Services: servs,
 	}
 }

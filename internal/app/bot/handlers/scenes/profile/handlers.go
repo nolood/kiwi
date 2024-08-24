@@ -261,32 +261,39 @@ func (s *Scene) handleLocation(next func(chatId telego.ChatID)) {
 	const op = "bot.handlers.scenes.profile.handleLocation"
 	s.bh.HandleMessage(func(bot *telego.Bot, message telego.Message) {
 
+		chatId := message.From.ID
+
 		if message.Location != nil {
-			err := s.services.Profile.UpdateProfile(message.From.ID, userdto.ProfileUpdate{Longitude: &message.Location.Longitude, Latitude: &message.Location.Latitude})
+			err := s.services.Profile.UpdateProfile(chatId, userdto.ProfileUpdate{Longitude: &message.Location.Longitude, Latitude: &message.Location.Latitude})
 			if err != nil {
 				s.log.Error(op, zap.Error(err))
 			}
 		}
 
+		data, err := s.services.MApp.Services.Location.Search(message.Text)
+		if err != nil {
+			s.log.Error(op, zap.Error(err))
+		}
+
+		kRows := make([][]telego.InlineKeyboardButton, 0)
+
+		for _, hit := range data.Hits {
+			s.log.Info(hit.GeneralMatch)
+			s.log.Info("kek", zap.Any("hit", hit.MatchesPosition))
+
+			kRows = append(kRows, tu.InlineKeyboardRow(
+				tu.InlineKeyboardButton(hit.Name).WithCallbackData("kek"),
+			))
+		}
+
+		keyboard := tu.InlineKeyboard(kRows...)
+
+		msg := tu.Message(message.Chat.ChatID(), "Выберите город").WithReplyMarkup(keyboard)
+
+		_, err = s.bot.SendMessage(msg)
+		if err != nil {
+			s.log.Error(op, zap.Error(err))
+		}
+
 	}, th.And(th.AnyMessage(), predicates.ThMessageSessionEqual(*s.services, model.Session_FillProfileLocation)))
-}
-
-func (s *Scene) GetLocation(chatId telego.ChatID) {
-	const op = "bot.handlers.scenes.profile.GetLocation"
-
-	err := s.services.Session.Set(chatId.ID, model.Session_FillProfileLocation)
-	if err != nil {
-		s.log.Error(op, zap.Error(err))
-	}
-
-	keyboard := tu.Keyboard(
-		tu.KeyboardRow(tu.KeyboardButton(texts.LocationSend).WithRequestLocation()),
-	).WithResizeKeyboard().WithInputFieldPlaceholder(texts.LocationTown)
-
-	msg := tu.Message(chatId, texts.LocationQuestion).WithReplyMarkup(keyboard)
-
-	_, err = s.bot.SendMessage(msg)
-	if err != nil {
-		s.log.Error(op, zap.Error(err))
-	}
 }

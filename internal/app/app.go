@@ -12,24 +12,24 @@ import (
 )
 
 type App struct {
-	Bot     *botapp.App
-	MClient *meilisearch.App
+	Bot  *botapp.App
+	MApp *meilisearch.App
 }
 
 func New(log *zap.Logger, cfg *config.Config) *App {
 
-	mClient := meilisearch.New(log, cfg.Meilisearch)
+	mApp := meilisearch.New(log, cfg.Meilisearch)
 
 	storage := postgres.New(cfg.Storage)
 
 	repos := repositories.New(log, storage)
 
-	servs := services.New(log, repos)
+	servs := services.New(log, repos, mApp)
 
 	bot := botapp.New(log, cfg.Telegram, servs)
 
 	return &App{
-		Bot:     bot,
-		MClient: mClient,
+		Bot:  bot,
+		MApp: mApp,
 	}
 }

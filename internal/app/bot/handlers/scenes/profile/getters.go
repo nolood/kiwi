@@ -28,6 +28,26 @@ func (s *Scene) GetAge(chatId telego.ChatID) {
 
 }
 
+func (s *Scene) GetLocation(chatId telego.ChatID) {
+	const op = "bot.handlers.scenes.profile.GetLocation"
+
+	err := s.services.Session.Set(chatId.ID, model.Session_FillProfileLocation)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
+
+	keyboard := tu.Keyboard(
+		tu.KeyboardRow(tu.KeyboardButton(texts.LocationSend).WithRequestLocation()),
+	).WithResizeKeyboard().WithInputFieldPlaceholder(texts.LocationTown)
+
+	msg := tu.Message(chatId, texts.LocationQuestion).WithReplyMarkup(keyboard)
+
+	_, err = s.bot.SendMessage(msg)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
+}
+
 func (s *Scene) GetGender(chatId telego.ChatID) {
 	const op = "bot.handlers.scenes.profile.GetGender"
 
