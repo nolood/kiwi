@@ -18,7 +18,7 @@ COPY --from=builder /app/config /usr/local/kiwi-config
 COPY --from=builder /app/.env /usr/local/bin/.env
 COPY --from=builder /app/.env /usr/local/kiwi-config/.env
 
-RUN chmod +x /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.dev.sh
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.dev.sh"]
 
