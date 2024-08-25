@@ -59,11 +59,20 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd kiwi
-            git pull origin stage-dev
-            docker stop kiwi-app
-            docker rm kiwi-app
-            docker rmi kiwi:latest
-            docker build -t kiwi:latest .
-            docker compose -f ./docker/docker-compose.dev.yml up -d kiwi-app
-            echo "Deploy complete!"
+              cd kiwi
+              
+              if pgrep -f "start-bot" > /dev/null; then
+                echo "Stopping the existing application..."
+                pkill -f "start-bot"
+              else
+                echo "No running application found."
+              fi
+
+              git pull origin stage-dev
+
+              go build -o start-bot ./cmd/bot/main.go
+
+              echo "Starting the new version..."
+              nohup ./start-bot > app.log 2>&1 &
+
+              echo "Deploy complete!"
