@@ -61,6 +61,8 @@ jobs:
           script: |
             cd kiwi
             git pull origin stage-dev
+            docker stop kiwi-app
+            docker rm kiwi-app
             docker rmi kiwi:latest
             docker build -t kiwi:latest .
             docker compose -f ./docker/docker-compose.dev.yml up -d kiwi-app

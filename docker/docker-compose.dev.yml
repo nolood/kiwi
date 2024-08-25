@@ -31,10 +31,6 @@ services:
     restart: always
     ports:
       - "8080:8080"
-    environment:
-      - CONFIG_PATH=/usr/local/kiwi-config
-    volumes:
-      - ./config:/usr/local/kiwi-config
     depends_on:
       - kiwi-db
       - kiwi-meilisearch
