@@ -18,7 +18,7 @@ func New(cfg config.Storage) *Storage {
 	connStr := fmt.Sprintf("user=%s dbname=%s password=%s port=%d sslmode=disable", cfg.User, cfg.Dbname, cfg.Password, cfg.Port)
 	db, err := sqlx.Connect("postgres", connStr)
 	if err != nil {
-		log.Panic(err)
+		log.Panic(err, cfg.User, cfg.Host, cfg.Port)
 	}
 
 	return &Storage{Db: db}
