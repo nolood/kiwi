@@ -63,10 +63,11 @@ jobs:
               
               if pgrep -f "start-bot" > /dev/null; then
                 echo "Stopping the existing application..."
-                pkill -f "start-bot"
+                pkill -f "start-bot" || { echo "Failed to stop the application"; exit 1; }
               else
                 echo "No running application found."
               fi
+
 
               git pull origin stage-dev
 
