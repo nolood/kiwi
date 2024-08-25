@@ -12,7 +12,7 @@ RUN go build -o start-bot ./cmd/bot/main.go
 RUN go build -o start-meilisearch ./cmd/meilisearch/main.go
 RUN go build -o start-location ./cmd/location/main.go
 
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 COPY --from=builder /app/start-bot /usr/local/bin/start-bot
 COPY --from=builder /app/start-meilisearch /usr/local/bin/start-meilisearch
