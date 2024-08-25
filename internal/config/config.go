@@ -10,8 +10,13 @@ import (
 )
 
 type Env struct {
-	Token string `env:"TELEGRAM_BOT_TOKEN"`
-	Key   string `env:"MEILISEARCH_API_KEY"`
+	Token 			string `env:"TELEGRAM_BOT_TOKEN"`
+	Key   			string `env:"MEILISEARCH_API_KEY"`
+	DbUser 			string `env:"POSTGRES_USER"`
+	DbName 			string `env:"POSTGRES_DB"`
+	DbPassword  string `env:"POSTGRES_PASSWORD"`
+	DbHost 			string `env:"POSTGRES_HOST"`
+	DbPort 			int 	 `env:"POSTGRES_PORT"`
 }
 
 type Meilisearch struct {
@@ -24,11 +29,11 @@ type Telegram struct {
 }
 
 type Storage struct {
-	Host     string `yaml:"host"`
-	Port     int    `yaml:"port"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
-	Dbname   string `yaml:"dbname"`
+	Host     string 
+	Port     int    
+	User     string 
+	Password string 
+	Dbname   string 
 }
 
 type Config struct {
@@ -66,6 +71,11 @@ func MustLoad() *Config {
 
 	cfg.Telegram.Token = envCfg.Token
 	cfg.Meilisearch.Key = envCfg.Key
+	cfg.Storage.Dbname = envCfg.DbName
+	cfg.Storage.Host = envCfg.DbHost
+	cfg.Storage.Password = envCfg.DbPassword
+	cfg.Storage.Port = envCfg.DbPort
+	cfg.Storage.User = envCfg.DbUser
 
 	return &cfg
 }

@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  kiwi-meilisearch:
+  kiwi-meilisearch-local:
     container_name: kiwi-meilisearch
     image: getmeili/meilisearch
     restart: always
@@ -10,7 +10,7 @@ services:
       - "7700:7700"
     networks:
       - kiwi-network
-  kiwi-db:
+  kiwi-db-local:
     container_name: kiwi-db
     restart: always
     image: postgres:15.4-alpine3.18
@@ -25,7 +25,7 @@ services:
     networks:
       - kiwi-network
   
-  kiwi-app:
+  kiwi-app-local:
     image: kiwi:latest
     container_name: kiwi-app
     build:
