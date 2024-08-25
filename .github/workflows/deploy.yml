@@ -63,7 +63,7 @@ jobs:
               
               if pgrep -f "start-bot" > /dev/null; then
                 echo "Stopping the existing application..."
-                pkill -f "start-bot" || echo "Failed to stop the application, continuing with deployment."
+                pkill -f "start-bot" || true
               else
                 echo "No running application found."
               fi
