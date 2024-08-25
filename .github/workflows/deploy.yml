@@ -1,13 +1,13 @@
-name: Check KIWI build
+name: Deploy KIWI
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
-      - main
+      - stage-dev
   push:
     branches:
-      - main
+      - stage-dev
 
 jobs:
   build:
@@ -46,3 +46,28 @@ jobs:
       - name: Build location
         run: |
           go build -o start-location ./cmd/location/main.go
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ needs.build.result == 'success' }}
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+      - name: Deploy to remote server via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd kiwi
+            git pull origin stage-dev
+            go build -o start-location ./cmd/location/main.go
+            go build -o start-meilisearch ./cmd/meilisearch/main.go
+            go build -o start-bot ./cmd/bot/main.go
+            ./start-location
+            ./start-meilisearch
+            ./start-bot
