@@ -1,9 +1,3 @@
 env: "dev"
 meilisearch:
   address: "http://kiwi-meilisearch:7700"
-storage:
-  host: "kiwi-db"
-  port: 5443
-  user: "postgres"
-  password: "1234"
-  dbname: "kiwi"

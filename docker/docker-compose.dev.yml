@@ -5,7 +5,7 @@ services:
     image: getmeili/meilisearch
     restart: always
     environment:
-      MEILI_MASTER_KEY: "gCVyJtPaH7CvxB5HDUz1yDenTeahrmg9ynVrFFJ0hKI"
+      MEILI_MASTER_KEY: "${MEILISEARCH_API_KEY}"
     ports:
       - "7700:7700"
     networks:
@@ -17,9 +17,9 @@ services:
     ports:
       - "5443:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: kiwi
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
     volumes:
       - ../static/cities5000.txt:/home/cities5000.txt
     networks:
@@ -28,11 +28,6 @@ services:
   kiwi-app:
     image: kiwi:latest
     container_name: kiwi-app
-    environment:
-      POSTGRES_HOST: kiwi-db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: kiwi
     build:
       context: .
       dockerfile: ../Dockerfile

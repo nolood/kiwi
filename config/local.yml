@@ -1,9 +1,3 @@
 env: "local"
 meilisearch:
   address: "http://localhost:7700"
-storage:
-  host: "localhost"
-  port: 5443
-  user: "postgres"
-  password: "1234"
-  dbname: "kiwi"
