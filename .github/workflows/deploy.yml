@@ -59,14 +59,11 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-              cd kiwi
-              
-              pkill -f "start-bot" || true
-
-              git pull origin stage-dev
-
-              echo "Building the new version..."
-              go build -o start-bot ./cmd/bot/main.go
-
-              echo "Starting the new version..."
-              nohup ./start-bot -config=./config/dev.yml > app.log 2>&1 & echo $! > start-bot.pid
+            set -x
+            cd kiwi
+            pkill -f "start-bot" || true
+            git pull origin stage-dev
+            echo "Building the new version..."
+            go build -o start-bot ./cmd/bot/main.go
+            echo "Starting the new version..."
+            nohup ./start-bot -config=./config/dev.yml > app.log 2>&1 & echo $! > start-bot.pid
