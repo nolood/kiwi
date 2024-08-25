@@ -35,15 +35,13 @@ services:
       POSTGRES_DB: kiwi
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: ../Dockerfile
     restart: always
     ports:
       - "8080:8080"
     depends_on:
       - kiwi-db
       - kiwi-meilisearch
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - kiwi-network
 networks:

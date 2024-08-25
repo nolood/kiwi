@@ -15,12 +15,12 @@ FROM postgres:latest
 WORKDIR /usr/local/bin
 
 COPY --from=builder /app/start-bot .
-COPY --from=builder /app/entrypoint.sh .
+COPY --from=builder /app/entrypoint.dev.sh .
 COPY --from=builder /app/.env ./.env
 COPY --from=builder /app/config /usr/local/kiwi-config
 COPY --from=builder /app/.env /usr/local/kiwi-config/.env
 
-RUN chmod +x /usr/local/bin/entrypoint.dev.sh
+RUN chmod +x ./entrypoint.dev.sh
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.dev.sh"]
 
