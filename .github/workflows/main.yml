@@ -1,0 +1,30 @@
+name: Check KIWI build
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Default branch
+        run: |
+          git config --global init.defaultBranch main
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if go is installed
+        run: |
+          go version
+          echo "::set-output name=GO_VERSION::$(go version | cut -d' ' -f3)"
+      
+      - name: Debug build
+        run: |
+          go build -o start-bot ./cmd/bot/main.go
+    
