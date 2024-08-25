@@ -282,7 +282,7 @@ func (s *Scene) handleLocation(next func(chatId telego.ChatID)) {
 			s.log.Info("kek", zap.Any("hit", hit.MatchesPosition))
 
 			kRows = append(kRows, tu.InlineKeyboardRow(
-				tu.InlineKeyboardButton(hit.Name).WithCallbackData("kek"),
+				tu.InlineKeyboardButton(hit.Name+"1").WithCallbackData("kek"),
 			))
 		}
 
