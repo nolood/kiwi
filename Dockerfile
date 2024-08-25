@@ -10,12 +10,14 @@ COPY . .
 
 RUN go build -o start-bot ./cmd/bot/main.go
 
-FROM ubuntu:latest
+FROM postgres:latest
 
-COPY --from=builder /app/start-bot /usr/local/bin/start-bot
-COPY --from=builder /app/entrypoint.sh /usr/local/bin/entrypoint.dev.sh
+WORKDIR /usr/local/bin
+
+COPY --from=builder /app/start-bot .
+COPY --from=builder /app/entrypoint.sh .
+COPY --from=builder /app/.env ./.env
 COPY --from=builder /app/config /usr/local/kiwi-config
-COPY --from=builder /app/.env /usr/local/bin/.env
 COPY --from=builder /app/.env /usr/local/kiwi-config/.env
 
 RUN chmod +x /usr/local/bin/entrypoint.dev.sh

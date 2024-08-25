@@ -28,12 +28,22 @@ services:
   kiwi-app:
     image: kiwi:latest
     container_name: kiwi-app
+    environment:
+      POSTGRES_HOST: kiwi-db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: kiwi
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: always
     ports:
       - "8080:8080"
     depends_on:
       - kiwi-db
       - kiwi-meilisearch
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - kiwi-network
 networks:
