@@ -61,19 +61,19 @@ jobs:
           script: |
               cd kiwi
               
-              if pgrep -f "start-bot" > /dev/null; then
-                echo "Stopping the existing application..."
-                pkill -f "start-bot" || true
-              else
-                echo "No running application found."
-              fi
+              {
+                if pgrep -f "start-bot" > /dev/null; then
+                  echo "Stopping the existing application..."
+                  pkill -f "start-bot" || echo "Failed to stop the application, continuing with deployment."
+                else
+                  echo "No running application found."
+                fi
+              } || 0
 
-              git pull origin stage-dev || { echo "Git pull failed"; exit 1; }
+              git pull origin stage-dev
 
               echo "Building the new version..."
-              go build -o start-bot ./cmd/bot/main.go || { echo "Build failed"; exit 1; }
+              go build -o start-bot ./cmd/bot/main.go
 
               echo "Starting the new version..."
-              nohup ./start-bot > app.log 2>&1 & echo $! > start-bot.pid || { echo "Failed to start the application"; exit 1; }
-
-              echo "Deploy complete!"
+              nohup ./start-bot > app.log 2>&1 & echo $! > start-bot.pid
