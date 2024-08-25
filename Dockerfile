@@ -17,6 +17,8 @@ COPY --from=builder /app/config /usr/local/kiwi-config
 COPY --from=builder /app/.env /usr/local/bin/.env
 COPY --from=builder /app/.env /usr/local/kiwi-config/.env
 
-RUN /usr/local/bin/start-bot
+RUN chmod +x /usr/local/bin/start-bot
+
+CMD ["/usr/local/bin/start-bot"]
 
 EXPOSE 8080
