@@ -13,7 +13,7 @@ RUN go build -o start-meilisearch ./cmd/meilisearch/main.go
 RUN go build -o start-location ./cmd/location/main.go
 
 
-FROM debian:bookworm-slim
+FROM ubuntu:latest
 
 COPY --from=builder /app/start-bot /usr/local/bin/start-bot
 COPY --from=builder /app/start-meilisearch /usr/local/bin/start-meilisearch
@@ -24,7 +24,6 @@ COPY --from=builder /app/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY --from=builder /app/config /usr/local/kiwi-config
 
 COPY --from=builder /app/.env /usr/local/bin/.env
-
 COPY --from=builder /app/.env /usr/local/kiwi-config/.env
 
 RUN chmod +x /usr/local/bin/entrypoint.sh

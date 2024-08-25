@@ -8,6 +8,8 @@ services:
       MEILI_MASTER_KEY: "gCVyJtPaH7CvxB5HDUz1yDenTeahrmg9ynVrFFJ0hKI"
     ports:
       - "7700:7700"
+    networks:
+      - kiwi-network
   kiwi-db:
     container_name: kiwi-db
     restart: always
@@ -20,3 +22,24 @@ services:
       POSTGRES_DB: kiwi
     volumes:
       - ../static/cities5000.txt:/home/cities5000.txt
+    networks:
+      - kiwi-network
+  
+  kiwi-app:
+    image: kiwi:latest
+    container_name: kiwi-app
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - CONFIG_PATH=/usr/local/kiwi-config
+    volumes:
+      - ./config:/usr/local/kiwi-config
+    depends_on:
+      - kiwi-db
+      - kiwi-meilisearch
+    networks:
+      - kiwi-network
+networks:
+  kiwi-network:
+    driver: bridge

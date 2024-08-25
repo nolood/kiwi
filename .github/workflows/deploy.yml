@@ -61,8 +61,7 @@ jobs:
           script: |
             cd kiwi
             git pull origin stage-dev
+            docker rmi kiwi:latest
             docker build -t kiwi:latest .
-            docker stop kiwi || true
-            docker rm kiwi || true
-            docker run -d --name kiwi -p 8080:8080 kiwi:latest
+            docker compose -f ./docker/docker-compose.dev.yml up -d kiwi-app
             echo "Deploy complete!"
