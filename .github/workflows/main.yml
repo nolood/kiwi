@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+
+
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,11 +20,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check if go is installed
+      - name: Check if Go is installed
+        id: check-go
         run: |
-          go version
-          echo "::set-output name=GO_VERSION::$(go version | cut -d' ' -f3)"
-      
+          if command -v go &> /dev/null; then
+            echo "go_installed=true" >> $GITHUB_ENV
+          else
+            echo "go_installed=false" >> $GITHUB_ENV
+          fi
+
+      - name: Install Go if not installed
+        if: steps.check-go.outputs.go_installed == 'false'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.x'
+
       - name: Debug build
         run: |
           go build -o start-bot ./cmd/bot/main.go
