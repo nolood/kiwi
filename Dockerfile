@@ -18,8 +18,8 @@ COPY --from=builder /app/config /usr/local/kiwi-config
 COPY --from=builder /app/.env /usr/local/bin/.env
 COPY --from=builder /app/.env /usr/local/kiwi-config/.env
 
-RUN chmod +x /usr/local/bin/start-bot
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-CMD ["/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 EXPOSE 8080
