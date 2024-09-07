@@ -17,6 +17,7 @@ import (
 type Repository interface {
 	Get(tgId int64) (userdto.UserWithProfile, error)
 	Create(user *telego.User) (userdto.UserWithProfile, error)
+	UpdateName(tgId int64, name string) error
 	UpdateAge(tgId int64, age int) error
 	UpdateGender(tgId int64, gender string) error
 	UpdateAbout(tgId int64, about string) error
@@ -34,6 +35,18 @@ func New(log *zap.Logger, db *sqlx.DB) Repository {
 		log: log,
 		db:  db,
 	}
+}
+
+func (r *repository) UpdateName(tgId int64, newValue string) error {
+	const op = "bot.repositories.user.UpdateName"
+
+	stmt := Profiles.UPDATE(Profiles.Name).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tgId)))
+	_, err := stmt.Exec(r.db)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
 }
 
 func (r *repository) UpdateLocation(tgId int64, latitude *float64, longitude *float64) error {

@@ -35,14 +35,18 @@ func (c *Callbacks) Register() {
 
 func (c *Callbacks) viewProfile() {
 	c.bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
+		const op = "handlers.callbacks.ViewProfile"
 
 		chat := query.Message.GetChat()
 
-		msg := telego.EditMessageTextParams{Text: "view profile", InlineMessageID: query.InlineMessageID, MessageID: query.Message.GetMessageID(), ChatID: chat.ChatID()}
-
-		_, err := bot.EditMessageText(&msg)
+		msg, err := c.services.Profile.GetFormattedProfile(chat.ChatID())
 		if err != nil {
-			c.log.Error("handlers.callbacks.ViewProfile", zap.Error(err))
+			c.log.Error(op, zap.Error(err))
+		}
+
+		_, err = bot.SendPhoto(msg)
+		if err != nil {
+			c.log.Error(op, zap.Error(err))
 		}
 
 	}, th.CallbackDataEqual(callbacks_consts.VIEW_PROFILE))

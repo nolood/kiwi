@@ -56,6 +56,7 @@ func (c *Commands) start() {
 		// Если анкета заполнена не до конца | Заполнить анкету |
 
 		if userprof.Profile.Age == nil ||
+			userprof.Profile.Name == nil ||
 			userprof.Profile.Gender == nil ||
 			userprof.Profile.PhotoID == nil ||
 			userprof.Profile.Latitude == nil ||

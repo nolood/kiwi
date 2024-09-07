@@ -10,6 +10,7 @@ type UserWithProfile struct {
 }
 
 type ProfileUpdate struct {
+	Name      *string
 	Age       *int
 	Gender    *string
 	About     *string

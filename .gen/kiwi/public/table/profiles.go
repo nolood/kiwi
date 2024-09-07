@@ -20,6 +20,7 @@ type profilesTable struct {
 	ID        postgres.ColumnInteger
 	UserID    postgres.ColumnInteger
 	UserTgID  postgres.ColumnInteger
+	Name      postgres.ColumnString
 	Age       postgres.ColumnInteger
 	Gender    postgres.ColumnString
 	PhotoID   postgres.ColumnString
@@ -70,6 +71,7 @@ func newProfilesTableImpl(schemaName, tableName, alias string) profilesTable {
 		IDColumn        = postgres.IntegerColumn("id")
 		UserIDColumn    = postgres.IntegerColumn("user_id")
 		UserTgIDColumn  = postgres.IntegerColumn("user_tg_id")
+		NameColumn      = postgres.StringColumn("name")
 		AgeColumn       = postgres.IntegerColumn("age")
 		GenderColumn    = postgres.StringColumn("gender")
 		PhotoIDColumn   = postgres.StringColumn("photo_id")
@@ -77,8 +79,8 @@ func newProfilesTableImpl(schemaName, tableName, alias string) profilesTable {
 		IsActiveColumn  = postgres.BoolColumn("is_active")
 		LatitudeColumn  = postgres.FloatColumn("latitude")
 		LongitudeColumn = postgres.FloatColumn("longitude")
-		allColumns      = postgres.ColumnList{IDColumn, UserIDColumn, UserTgIDColumn, AgeColumn, GenderColumn, PhotoIDColumn, AboutColumn, IsActiveColumn, LatitudeColumn, LongitudeColumn}
-		mutableColumns  = postgres.ColumnList{UserIDColumn, UserTgIDColumn, AgeColumn, GenderColumn, PhotoIDColumn, AboutColumn, IsActiveColumn, LatitudeColumn, LongitudeColumn}
+		allColumns      = postgres.ColumnList{IDColumn, UserIDColumn, UserTgIDColumn, NameColumn, AgeColumn, GenderColumn, PhotoIDColumn, AboutColumn, IsActiveColumn, LatitudeColumn, LongitudeColumn}
+		mutableColumns  = postgres.ColumnList{UserIDColumn, UserTgIDColumn, NameColumn, AgeColumn, GenderColumn, PhotoIDColumn, AboutColumn, IsActiveColumn, LatitudeColumn, LongitudeColumn}
 	)
 
 	return profilesTable{
@@ -88,6 +90,7 @@ func newProfilesTableImpl(schemaName, tableName, alias string) profilesTable {
 		ID:        IDColumn,
 		UserID:    UserIDColumn,
 		UserTgID:  UserTgIDColumn,
+		Name:      NameColumn,
 		Age:       AgeColumn,
 		Gender:    GenderColumn,
 		PhotoID:   PhotoIDColumn,

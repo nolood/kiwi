@@ -11,6 +11,7 @@ type Profiles struct {
 	ID        int32 `sql:"primary_key"`
 	UserID    int64
 	UserTgID  int64
+	Name      *string
 	Age       *int32
 	Gender    *string
 	PhotoID   *string

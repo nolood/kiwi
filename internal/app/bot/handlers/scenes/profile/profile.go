@@ -40,6 +40,7 @@ func (s *Scene) router(next func(chatId telego.ChatID, session interface{})) fun
 }
 
 func (s *Scene) RegisterFillProfileScene() {
+	s.handleName(s.router(s.GetAge))
 	s.handleAge(s.router(s.GetGender))
 	s.handleGender(s.router(s.GetPhoto))
 	s.handleDefaultPhoto(s.router(s.GetAbout))

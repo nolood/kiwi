@@ -18,6 +18,57 @@ import (
 
 type Next func(chatId telego.ChatID, session model.Session)
 
+func (s *Scene) handleName(next Next) {
+	const op = "bot.handlers.scenes.profile.handleName"
+
+	s.bh.Handle(func(bot *telego.Bot, update telego.Update) {
+
+		session, err := s.services.Session.Get(update.Message.From.ID)
+		if err != nil {
+			s.log.Error(op, zap.Error(err))
+		}
+
+		ok := true
+
+		var msg *telego.SendMessageParams
+		name := update.Message.Text
+
+		if len(name) > 20 || len(name) < 2 {
+			ok = false
+			msg = tu.Message(update.Message.Chat.ChatID(), texts.NameError)
+		}
+
+		if ok {
+			err = s.services.Profile.UpdateProfile(update.Message.From.ID, userdto.ProfileUpdate{Name: &name})
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
+			err = s.services.Session.Set(update.Message.From.ID, model.Session_None)
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
+		}
+
+		if !ok {
+			_, err = bot.SendMessage(msg)
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
+		}
+
+		if ok {
+			next(update.Message.Chat.ChatID(), session)
+		}
+
+	}, th.And(
+		th.AnyMessageWithText(),
+		th.Or(
+			predicates.ThMessageSessionEqual(*s.services, model.Session_FillProfileName),
+			predicates.ThMessageSessionEqual(*s.services, model.Session_EditProfileAge)),
+	))
+
+}
+
 func (s *Scene) handleAge(next Next) {
 	const op = "bot.handlers.scenes.profile.handleAge"
 
@@ -439,6 +490,8 @@ func (s *Scene) handleEditProfile(next Next) {
 		action := strings.Split(query.Data, "_")[1]
 
 		switch action {
+		case "name":
+			s.GetName(chatId, model.Session_EditProfileName)
 		case "age":
 			s.GetAge(chatId, model.Session_EditProfileAge)
 		case "gender":

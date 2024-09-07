@@ -11,6 +11,30 @@ import (
 	"go.uber.org/zap"
 )
 
+func (s *Scene) GetName(chatId telego.ChatID, session interface{}) {
+	const op = "bot.handlers.scenes.profile.GetName"
+
+	var _session model.Session
+
+	if session == nil {
+		_session = model.Session_FillProfileName
+	} else {
+		_session = session.(model.Session)
+	}
+
+	err := s.services.Session.Set(chatId.ID, _session)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
+
+	msg := tu.Message(chatId, texts.NameQuestion)
+
+	_, err = s.bot.SendMessage(msg)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
+}
+
 func (s *Scene) GetAge(chatId telego.ChatID, session interface{}) {
 	const op = "bot.handlers.scenes.profile.GetAge"
 
@@ -33,7 +57,6 @@ func (s *Scene) GetAge(chatId telego.ChatID, session interface{}) {
 	if err != nil {
 		s.log.Error(op, zap.Error(err))
 	}
-
 }
 
 func (s *Scene) GetLocation(chatId telego.ChatID, session interface{}) {
@@ -161,6 +184,9 @@ func (s *Scene) GetProfileComplete(chatId telego.ChatID, session interface{}) {
 			tu.InlineKeyboardButton(texts.ProfileFillAgain).WithCallbackData(callbacks_consts.EDIT_PROFILE+"again"),
 		),
 		tu.InlineKeyboardRow(
+			tu.InlineKeyboardButton(texts.ProfileEditName).WithCallbackData(callbacks_consts.EDIT_PROFILE+"name"),
+		),
+		tu.InlineKeyboardRow(
 			tu.InlineKeyboardButton(texts.ProfileEditAge).WithCallbackData(callbacks_consts.EDIT_PROFILE+"age"),
 		),
 		tu.InlineKeyboardRow(
@@ -180,8 +206,16 @@ func (s *Scene) GetProfileComplete(chatId telego.ChatID, session interface{}) {
 		),
 	)
 
-	msg := tu.Message(chatId, texts.ProfileFillComplete).WithReplyMarkup(keyboard)
-	_, err = s.bot.SendMessage(msg)
+	msg, err := s.services.Profile.GetFormattedProfile(chatId)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
+
+	msg.Caption = msg.Caption + "\n\n" + texts.ProfileFillComplete
+
+	msg.WithReplyMarkup(keyboard)
+
+	_, err = s.bot.SendPhoto(msg)
 	if err != nil {
 		s.log.Error(op, zap.Error(err))
 	}
@@ -189,5 +223,5 @@ func (s *Scene) GetProfileComplete(chatId telego.ChatID, session interface{}) {
 }
 
 func (s *Scene) StartFillProfileScene(chatId telego.ChatID) {
-	s.GetAge(chatId, nil)
+	s.GetName(chatId, nil)
 }
