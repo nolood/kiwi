@@ -9,7 +9,7 @@ services:
     environment:
       MEILI_MASTER_KEY: "${MEILISEARCH_API_KEY}"
     ports:
-      - "7700:7700"
+      - "7701:7700"
   kiwi-db:
     container_name: kiwi-db
     restart: always
