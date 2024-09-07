@@ -2,6 +2,7 @@ package location
 
 import (
 	"encoding/json"
+	"fmt"
 	"kiwi/internal/app/meilisearch/constants"
 	"kiwi/internal/app/meilisearch/dto"
 
@@ -34,22 +35,22 @@ func (s *service) Search(city string) (*CitySearchResponse, error) {
 	const op = "meilisearch.services.location.MustSearch"
 
 	data, err := s.client.Index(constants.IndexCity).Search(city, &meilisearch.SearchRequest{
-		Limit:               10,
+		Limit:               9,
 		ShowMatchesPosition: true,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	hitsData, err := json.Marshal(data.Hits)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	var result CitySearchResponse
 	err = json.Unmarshal(hitsData, &result.Hits)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return &result, nil

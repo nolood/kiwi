@@ -7,4 +7,5 @@ const (
 	GENDER_FEMALE = "gender_female"
 	DEFAULT_PHOTO = "default_photo"
 	LOCATION_SEND = "location_send"
+	LOCATION_TOWN = "locationTown_"
 )

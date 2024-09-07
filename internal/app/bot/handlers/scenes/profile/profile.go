@@ -31,9 +31,11 @@ func (s *Scene) RegisterFillProfileScene() {
 	s.handleDefaultPhoto(s.GetAbout)
 	s.handlePhoto(s.GetAbout)
 	s.handleAbout(s.GetLocation)
-
 	s.handleLocation(func(chatId telego.ChatID) {
 		s.log.Info("kek")
+	})
+	s.handleLocationTown(func(chatId telego.ChatID) {
+		s.log.Info("kek town")
 	})
 
 }

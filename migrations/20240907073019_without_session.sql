@@ -1,16 +1,5 @@
 -- +goose Up
 -- +goose StatementBegin
-CREATE TYPE session AS ENUM (
-	'fill_profile_age',
-	'fill_profile_name',
-	'fill_profile_location',
-	'fill_profile_photo',
-	'fill_profile_gender',
-	'fill_profile_about',
-	'fill_blacklist',
-	'none'
-);
-
 CREATE TABLE
 	IF NOT EXISTS users (
 		id SERIAL PRIMARY KEY,
@@ -20,8 +9,7 @@ CREATE TABLE
 		username VARCHAR(255) NOT NULL UNIQUE,
 		language_code VARCHAR(5),
 		is_premium BOOLEAN NOT NULL DEFAULT FALSE,
-		photo_url VARCHAR(1000),
-		session session NOT NULL DEFAULT 'none'
+		photo_url VARCHAR(1000)
 	);
 
 CREATE TABLE
@@ -69,8 +57,6 @@ CREATE TABLE
 DROP TABLE IF EXISTS users CASCADE;
 
 DROP TABLE IF EXISTS profiles CASCADE;
-
-DROP TYPE IF EXISTS session CASCADE;
 
 DROP TABLE IF EXISTS cities CASCADE;
 

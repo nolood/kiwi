@@ -70,8 +70,8 @@ DROP TABLE IF EXISTS users CASCADE;
 
 DROP TABLE IF EXISTS profiles CASCADE;
 
-DROP TYPE IF EXISTS session;
+drop type if exists public.session cascade;
 
-DROP TABLE IF EXISTS cities;
+DROP TABLE IF EXISTS cities CASCADE;
 
 -- +goose StatementEnd

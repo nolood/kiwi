@@ -2,12 +2,14 @@ package profile
 
 import (
 	"errors"
+	"fmt"
 	"kiwi/.gen/kiwi/public/model"
 	userdto "kiwi/internal/app/bot/dto/user"
 	callbacks_consts "kiwi/internal/app/bot/handlers/callbacks/consts"
 	"kiwi/internal/app/bot/static/texts"
 	"kiwi/internal/app/bot/utils/predicates"
 	"strconv"
+	"strings"
 
 	"github.com/mymmrac/telego"
 	th "github.com/mymmrac/telego/telegohandler"
@@ -275,20 +277,36 @@ func (s *Scene) handleLocation(next func(chatId telego.ChatID)) {
 			s.log.Error(op, zap.Error(err))
 		}
 
+		if len(data.Hits) == 0 {
+			msg := tu.Message(message.Chat.ChatID(), texts.LocationNotFound)
+			_, err = s.bot.SendMessage(msg)
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
+
+			return
+		}
+
 		kRows := make([][]telego.InlineKeyboardButton, 0)
 
 		for _, hit := range data.Hits {
-			s.log.Info(hit.GeneralMatch)
-			s.log.Info("kek", zap.Any("hit", hit.MatchesPosition))
+			name := processLocationName(hit.Alternatenames, hit.MatchesPosition.Alternatenames)
+
+			callback := callbacks_consts.LOCATION_TOWN + strconv.Itoa(int(hit.ID))
 
 			kRows = append(kRows, tu.InlineKeyboardRow(
-				tu.InlineKeyboardButton(hit.Name+"1").WithCallbackData("kek"),
+				tu.InlineKeyboardButton(name+" - "+hit.Name).WithCallbackData(callback),
 			))
+
 		}
+
+		kRows = append(kRows, tu.InlineKeyboardRow(
+			tu.InlineKeyboardButton(texts.LocationNotInList).WithCallbackData(callbacks_consts.LOCATION_TOWN+"not"),
+		))
 
 		keyboard := tu.InlineKeyboard(kRows...)
 
-		msg := tu.Message(message.Chat.ChatID(), "Выберите город").WithReplyMarkup(keyboard)
+		msg := tu.Message(message.Chat.ChatID(), texts.LocationChoice).WithReplyMarkup(keyboard)
 
 		_, err = s.bot.SendMessage(msg)
 		if err != nil {
@@ -296,4 +314,59 @@ func (s *Scene) handleLocation(next func(chatId telego.ChatID)) {
 		}
 
 	}, th.And(th.AnyMessage(), predicates.ThMessageSessionEqual(*s.services, model.Session_FillProfileLocation)))
+}
+
+func (s *Scene) handleLocationTown(next func(chatId telego.ChatID)) {
+	const op = "bot.handlers.scenes.profile.handleLocationTown"
+	s.bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
+
+		fmt.Println("HANDLE TOWN")
+
+		chatId := tu.ID(query.From.ID)
+
+		town := strings.Split(query.Data, "_")[1]
+
+		var msg *telego.SendMessageParams
+
+		ok := true
+
+		if town == "not" {
+			msg = tu.Message(
+				chatId,
+				texts.LocationNotFound,
+			)
+
+			ok = false
+		}
+
+		if ok {
+			townId, err := strconv.Atoi(town)
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
+
+			city, err := s.services.Cities.GetById(townId)
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
+
+			s.services.Profile.UpdateProfile(query.From.ID, userdto.ProfileUpdate{Latitude: city.Latitude, Longitude: city.Longitude})
+
+			err = s.services.Session.Set(query.From.ID, model.Session_None)
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
+
+			msg = tu.Message(chatId, texts.LocationComplete)
+		}
+
+		_, err := s.bot.SendMessage(msg)
+		if err != nil {
+			s.log.Error(op, zap.Error(err))
+		}
+
+		if ok {
+			next(chatId)
+		}
+	}, th.And(th.CallbackDataPrefix(callbacks_consts.LOCATION_TOWN), predicates.ThCallbackSessionEqual(*s.services, model.Session_FillProfileLocation)))
 }

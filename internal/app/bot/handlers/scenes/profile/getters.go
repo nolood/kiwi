@@ -107,6 +107,11 @@ func (s *Scene) GetAbout(chatId telego.ChatID) {
 	}
 }
 
+func (s *Scene) GetProfileComplete(chatId telego.ChatID) {
+	const op = "bot.handlers.scenes.profile.GetProfileComplete"
+
+}
+
 func (s *Scene) StartFillProfileScene(chatId telego.ChatID) {
 	s.GetAge(chatId)
 }
