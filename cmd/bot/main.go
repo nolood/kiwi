@@ -4,12 +4,18 @@ import (
 	"kiwi/internal/app"
 	"kiwi/internal/config"
 	"kiwi/internal/lib/logger"
+	"log"
+	"net/http"
+
+	// _ "net/http/pprof"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
 func main() {
+
+	// startPprof()
 
 	cfg := config.MustLoad()
 
@@ -27,4 +33,10 @@ func main() {
 	application.Bot.Stop()
 
 	log.Info("App stopped")
+}
+
+func startPprof() {
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
 }

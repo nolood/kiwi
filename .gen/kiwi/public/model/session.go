@@ -19,6 +19,13 @@ const (
 	Session_FillProfileGender   Session = "fill_profile_gender"
 	Session_FillProfileAbout    Session = "fill_profile_about"
 	Session_FillBlacklist       Session = "fill_blacklist"
+	Session_EditProfile         Session = "edit_profile"
+	Session_EditProfileAge      Session = "edit_profile_age"
+	Session_EditProfileName     Session = "edit_profile_name"
+	Session_EditProfileLocation Session = "edit_profile_location"
+	Session_EditProfilePhoto    Session = "edit_profile_photo"
+	Session_EditProfileGender   Session = "edit_profile_gender"
+	Session_EditProfileAbout    Session = "edit_profile_about"
 	Session_None                Session = "none"
 )
 
@@ -48,6 +55,20 @@ func (e *Session) Scan(value interface{}) error {
 		*e = Session_FillProfileAbout
 	case "fill_blacklist":
 		*e = Session_FillBlacklist
+	case "edit_profile":
+		*e = Session_EditProfile
+	case "edit_profile_age":
+		*e = Session_EditProfileAge
+	case "edit_profile_name":
+		*e = Session_EditProfileName
+	case "edit_profile_location":
+		*e = Session_EditProfileLocation
+	case "edit_profile_photo":
+		*e = Session_EditProfilePhoto
+	case "edit_profile_gender":
+		*e = Session_EditProfileGender
+	case "edit_profile_about":
+		*e = Session_EditProfileAbout
 	case "none":
 		*e = Session_None
 	default:

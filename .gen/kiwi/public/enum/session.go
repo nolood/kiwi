@@ -17,6 +17,13 @@ var Session = &struct {
 	FillProfileGender   postgres.StringExpression
 	FillProfileAbout    postgres.StringExpression
 	FillBlacklist       postgres.StringExpression
+	EditProfile         postgres.StringExpression
+	EditProfileAge      postgres.StringExpression
+	EditProfileName     postgres.StringExpression
+	EditProfileLocation postgres.StringExpression
+	EditProfilePhoto    postgres.StringExpression
+	EditProfileGender   postgres.StringExpression
+	EditProfileAbout    postgres.StringExpression
 	None                postgres.StringExpression
 }{
 	FillProfileAge:      postgres.NewEnumValue("fill_profile_age"),
@@ -26,5 +33,12 @@ var Session = &struct {
 	FillProfileGender:   postgres.NewEnumValue("fill_profile_gender"),
 	FillProfileAbout:    postgres.NewEnumValue("fill_profile_about"),
 	FillBlacklist:       postgres.NewEnumValue("fill_blacklist"),
+	EditProfile:         postgres.NewEnumValue("edit_profile"),
+	EditProfileAge:      postgres.NewEnumValue("edit_profile_age"),
+	EditProfileName:     postgres.NewEnumValue("edit_profile_name"),
+	EditProfileLocation: postgres.NewEnumValue("edit_profile_location"),
+	EditProfilePhoto:    postgres.NewEnumValue("edit_profile_photo"),
+	EditProfileGender:   postgres.NewEnumValue("edit_profile_gender"),
+	EditProfileAbout:    postgres.NewEnumValue("edit_profile_about"),
 	None:                postgres.NewEnumValue("none"),
 }

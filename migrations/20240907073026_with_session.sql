@@ -8,6 +8,13 @@ CREATE TYPE session AS ENUM (
 	'fill_profile_gender',
 	'fill_profile_about',
 	'fill_blacklist',
+	'edit_profile',
+	'edit_profile_age',
+	'edit_profile_name',
+	'edit_profile_location',
+	'edit_profile_photo',
+	'edit_profile_gender',
+	'edit_profile_about',
 	'none'
 );
 

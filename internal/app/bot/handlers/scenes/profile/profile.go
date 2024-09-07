@@ -1,7 +1,9 @@
 package profile
 
 import (
+	"kiwi/.gen/kiwi/public/model"
 	"kiwi/internal/app/bot/services"
+	"strings"
 
 	"github.com/mymmrac/telego"
 	th "github.com/mymmrac/telego/telegohandler"
@@ -25,17 +27,26 @@ func New(log *zap.Logger, servs *services.Services, bot *telego.Bot, bh *th.BotH
 	}
 }
 
-func (s *Scene) RegisterFillProfileScene() {
-	s.handleAge(s.GetGender)
-	s.handleGender(s.GetPhoto)
-	s.handleDefaultPhoto(s.GetAbout)
-	s.handlePhoto(s.GetAbout)
-	s.handleAbout(s.GetLocation)
-	s.handleLocation(func(chatId telego.ChatID) {
-		s.log.Info("kek")
-	})
-	s.handleLocationTown(func(chatId telego.ChatID) {
-		s.log.Info("kek town")
-	})
+func (s *Scene) router(next func(chatId telego.ChatID, session interface{})) func(chatId telego.ChatID, session model.Session) {
 
+	return func(chatId telego.ChatID, session model.Session) {
+		if strings.Split(session.String(), "_")[0] == "edit" {
+			s.GetProfileComplete(chatId, nil)
+			return
+		}
+		next(chatId, nil)
+	}
+
+}
+
+func (s *Scene) RegisterFillProfileScene() {
+	s.handleAge(s.router(s.GetGender))
+	s.handleGender(s.router(s.GetPhoto))
+	s.handleDefaultPhoto(s.router(s.GetAbout))
+	s.handlePhoto(s.router(s.GetAbout))
+	s.handleAbout(s.router(s.GetLocation))
+	s.handleLocation(s.router(s.GetProfileComplete))
+	s.handleLocationTown(s.router(s.GetProfileComplete))
+
+	s.handleEditProfile(s.router(s.GetProfileComplete))
 }

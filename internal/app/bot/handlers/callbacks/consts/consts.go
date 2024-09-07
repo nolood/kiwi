@@ -3,9 +3,10 @@ package callbacks_consts
 const (
 	VIEW_PROFILE  = "view_profile"
 	FILL_PROFILE  = "fill_profile"
-	GENDER_MALE   = "gender_male"
-	GENDER_FEMALE = "gender_female"
-	DEFAULT_PHOTO = "default_photo"
-	LOCATION_SEND = "location_send"
-	LOCATION_TOWN = "locationTown_"
+	GENDER_MALE   = "fillGenderMale"
+	GENDER_FEMALE = "fillGenderFemale"
+	DEFAULT_PHOTO = "fillDefaultPhoto"
+	LOCATION_SEND = "fillLocationSend"
+	LOCATION_TOWN = "fillLocationTown_"
+	EDIT_PROFILE  = "editProfile_"
 )
