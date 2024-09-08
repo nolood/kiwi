@@ -82,5 +82,52 @@ func (c *Commands) start() {
 
 		_, _ = bot.SendMessage(msg)
 
-	}, th.CommandEqual(START))
+	}, th.Or(th.CommandEqual(START)))
+
+	c.bh.HandleCallbackQuery(func(bot *telego.Bot, query telego.CallbackQuery) {
+
+		userprof, err := c.services.User.Get(query.From.ID)
+		if err != nil {
+			c.log.Error("handlers.commands.Start", zap.Error(err))
+			return
+		}
+
+		var keyboard *telego.InlineKeyboardMarkup
+
+		// Если есть заполненная анкета и отключена - | Начать поиск | Посмотреть анкету |
+		if userprof.Profile.Age != nil && userprof.Profile.Gender != nil && !userprof.Profile.IsActive {
+			keyboard = tu.InlineKeyboard(tu.InlineKeyboardRow(
+				tu.InlineKeyboardButton("Начать поиск").WithCallbackData("search"),
+				tu.InlineKeyboardButton("Посмотреть анкету").WithCallbackData(callbacks_consts.VIEW_PROFILE),
+			))
+		}
+
+		// Если анкета заполнена не до конца | Заполнить анкету |
+
+		if userprof.Profile.Age == nil ||
+			userprof.Profile.Name == nil ||
+			userprof.Profile.Gender == nil ||
+			userprof.Profile.PhotoID == nil ||
+			userprof.Profile.Latitude == nil ||
+			userprof.Profile.Longitude == nil {
+			keyboard = tu.InlineKeyboard(tu.InlineKeyboardRow(
+				tu.InlineKeyboardButton("Заполнить анкету").WithCallbackData(callbacks_consts.FILL_PROFILE),
+			))
+		}
+
+		if userprof.Profile.Age != nil && userprof.Profile.Gender != nil && userprof.Profile.IsActive {
+			keyboard = tu.InlineKeyboard(tu.InlineKeyboardRow(
+				tu.InlineKeyboardButton("Продолжить поиск").WithCallbackData("start"),
+				tu.InlineKeyboardButton("Посмотреть анкету").WithCallbackData(callbacks_consts.VIEW_PROFILE),
+			))
+		}
+
+		msg := tu.Message(
+			tu.ID(query.From.ID),
+			texts.GreetingText(query.From.FirstName),
+		).WithReplyMarkup(keyboard)
+
+		_, _ = bot.SendMessage(msg)
+
+	}, th.Or(th.CallbackDataEqual(callbacks_consts.START)))
 }

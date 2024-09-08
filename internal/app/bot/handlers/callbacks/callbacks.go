@@ -2,12 +2,14 @@ package callbacks
 
 import (
 	callbacks_consts "kiwi/internal/app/bot/handlers/callbacks/consts"
+	"kiwi/internal/app/bot/handlers/domain/keyboards"
 	"kiwi/internal/app/bot/handlers/scenes"
 	"kiwi/internal/app/bot/services"
 	"kiwi/internal/app/bot/static/texts"
 
 	"github.com/mymmrac/telego"
 	th "github.com/mymmrac/telego/telegohandler"
+	tu "github.com/mymmrac/telego/telegoutil"
 	"go.uber.org/zap"
 )
 
@@ -43,6 +45,14 @@ func (c *Callbacks) viewProfile() {
 		if err != nil {
 			c.log.Error(op, zap.Error(err))
 		}
+
+		keyboard := keyboards.ProfileEditKeyboard(
+			tu.InlineKeyboardRow(
+				tu.InlineKeyboardButton(texts.Back).WithCallbackData(callbacks_consts.START),
+			),
+		)
+
+		msg.WithReplyMarkup(keyboard)
 
 		_, err = bot.SendPhoto(msg)
 		if err != nil {

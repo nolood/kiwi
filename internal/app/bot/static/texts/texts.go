@@ -65,10 +65,14 @@ const (
 	ProfileEditPhoto    = "Изменить фотографию 📷"
 	ProfileEditAbout    = "Изменить информацию о себе 📝"
 	ProfileEditLocation = "Изменить местоположение 🗺️"
-	ProfileComplete     = "Начать поиск 🔎"
+	ProfileStartSearch  = "Начать поиск 🔎"
 )
 
 const (
 	ViewProfile = "Посмотреть профиль 👤"
 	StartFind   = "Начать поиск 🔎"
+)
+
+const (
+	Back = "Назад ⬅️"
 )

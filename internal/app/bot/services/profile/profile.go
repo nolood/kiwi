@@ -4,6 +4,7 @@ import (
 	"fmt"
 	userdto "kiwi/internal/app/bot/dto/user"
 	"kiwi/internal/app/bot/repositories"
+	"kiwi/internal/app/bot/static/texts"
 	"strconv"
 
 	tu "github.com/mymmrac/telego/telegoutil"
@@ -39,18 +40,27 @@ func (s *service) GetFormattedProfile(chatId telego.ChatID) (*telego.SendPhotoPa
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	text += *userprof.Profile.Name + "\n"
+	text += texts.ProfileName + *userprof.Profile.Name + "\n"
 
-	text += strconv.Itoa(int(*userprof.Profile.Age)) + "\n"
+	text += texts.ProfileAge + strconv.Itoa(int(*userprof.Profile.Age)) + "\n"
 
-	if userprof.Profile.About != nil {
-		text += *userprof.Profile.About + "\n"
+	genderText := texts.ProfileGenderMale
+	if *userprof.Profile.Gender == "F" {
+		genderText = texts.ProfileGenderMale
+	}
+	text += genderText + "\n"
+
+	if userprof.Profile.Location != nil {
+		text += texts.ProfileCity + *userprof.Profile.Location + "\n"
 	}
 
-	text += *userprof.Profile.Gender + "\n"
+	if userprof.Profile.About != nil {
+		text += texts.ProfileAbout + *userprof.Profile.About + "\n"
+	}
 
 	msg := tu.Photo(chatId, telego.InputFile{FileID: *userprof.Profile.PhotoID})
 	msg.Caption = text
+	msg.ParseMode = "MarkdownV2"
 
 	return msg, nil
 }

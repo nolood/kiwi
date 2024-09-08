@@ -3,6 +3,7 @@ package profile
 import (
 	"kiwi/.gen/kiwi/public/model"
 	callbacks_consts "kiwi/internal/app/bot/handlers/callbacks/consts"
+	"kiwi/internal/app/bot/handlers/domain/keyboards"
 	"kiwi/internal/app/bot/static/texts"
 
 	tu "github.com/mymmrac/telego/telegoutil"
@@ -179,41 +180,21 @@ func (s *Scene) GetProfileComplete(chatId telego.ChatID, session interface{}) {
 		s.log.Error(op, zap.Error(err))
 	}
 
-	inlineKeyboard := tu.InlineKeyboard(
-		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton(texts.ProfileFillAgain).WithCallbackData(callbacks_consts.EDIT_PROFILE+"again"),
-		),
-		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton(texts.ProfileEditName).WithCallbackData(callbacks_consts.EDIT_PROFILE+"name"),
-		),
-		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton(texts.ProfileEditAge).WithCallbackData(callbacks_consts.EDIT_PROFILE+"age"),
-		),
-		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton(texts.ProfileEditGender).WithCallbackData(callbacks_consts.EDIT_PROFILE+"gender"),
-		),
-		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton(texts.ProfileEditPhoto).WithCallbackData(callbacks_consts.EDIT_PROFILE+"photo"),
-		),
-		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton(texts.ProfileEditAbout).WithCallbackData(callbacks_consts.EDIT_PROFILE+"about"),
-		),
-		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton(texts.ProfileEditLocation).WithCallbackData(callbacks_consts.EDIT_PROFILE+"location"),
-		),
-		tu.InlineKeyboardRow(
-			tu.InlineKeyboardButton(texts.ProfileComplete).WithCallbackData("kek"),
-		),
-	)
+	msgKeyboardRemove := tu.Message(chatId, texts.ProfileFillComplete).WithReplyMarkup(tu.ReplyKeyboardRemove())
+
+	_, err = s.bot.SendMessage(msgKeyboardRemove)
+	if err != nil {
+		s.log.Error(op, zap.Error(err))
+	}
+
+	inlineKeyboard := keyboards.ProfileEditKeyboard()
 
 	msg, err := s.services.Profile.GetFormattedProfile(chatId)
 	if err != nil {
 		s.log.Error(op, zap.Error(err))
 	}
 
-	msg.Caption = msg.Caption + "\n\n" + texts.ProfileFillComplete
-
-	msg.WithReplyMarkup(inlineKeyboard).WithReplyMarkup(tu.ReplyKeyboardRemove())
+	msg.WithReplyMarkup(inlineKeyboard)
 
 	_, err = s.bot.SendPhoto(msg)
 	if err != nil {

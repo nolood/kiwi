@@ -9,4 +9,5 @@ const (
 	LOCATION_SEND = "fillLocationSend"
 	LOCATION_TOWN = "fillLocationTown_"
 	EDIT_PROFILE  = "editProfile_"
+	START         = "start"
 )
