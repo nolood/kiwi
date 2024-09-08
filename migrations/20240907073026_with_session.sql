@@ -42,7 +42,7 @@ CREATE TABLE
 		photo_id VARCHAR(2000),
 		about VARCHAR(255),
 		is_active BOOLEAN NOT NULL DEFAULT FALSE,
-		location VARCHAR(100),
+		location VARCHAR(255),
 		latitude DOUBLE PRECISION,
 		longitude DOUBLE PRECISION,
 		CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id),

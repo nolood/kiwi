@@ -10,6 +10,7 @@ import (
 
 type Service interface {
 	GetById(id int) (model.Cities, error)
+	FindByCords(lat, lon float64) (model.Cities, float64, error)
 }
 
 type service struct {
@@ -33,4 +34,14 @@ func (s *service) GetById(id int) (model.Cities, error) {
 	}
 
 	return city, nil
+}
+
+func (s *service) FindByCords(lat, lon float64) (model.Cities, float64, error) {
+
+	city, distance, err := s.repos.Cities.FindByCords(lat, lon)
+	if err != nil {
+		return city, distance, err
+	}
+
+	return city, distance, nil
 }

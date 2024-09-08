@@ -179,7 +179,7 @@ func (s *Scene) GetProfileComplete(chatId telego.ChatID, session interface{}) {
 		s.log.Error(op, zap.Error(err))
 	}
 
-	keyboard := tu.InlineKeyboard(
+	inlineKeyboard := tu.InlineKeyboard(
 		tu.InlineKeyboardRow(
 			tu.InlineKeyboardButton(texts.ProfileFillAgain).WithCallbackData(callbacks_consts.EDIT_PROFILE+"again"),
 		),
@@ -213,7 +213,7 @@ func (s *Scene) GetProfileComplete(chatId telego.ChatID, session interface{}) {
 
 	msg.Caption = msg.Caption + "\n\n" + texts.ProfileFillComplete
 
-	msg.WithReplyMarkup(keyboard)
+	msg.WithReplyMarkup(inlineKeyboard).WithReplyMarkup(tu.ReplyKeyboardRemove())
 
 	_, err = s.bot.SendPhoto(msg)
 	if err != nil {

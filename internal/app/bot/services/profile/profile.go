@@ -100,5 +100,12 @@ func (s *service) UpdateProfile(tg_id int64, profile userdto.ProfileUpdate) erro
 		}
 	}
 
+	if profile.Location != nil {
+		err := s.repos.User.UpdateCity(tg_id, *profile.Location)
+		if err != nil {
+			return fmt.Errorf("%s: %w", op, err)
+		}
+	}
+
 	return nil
 }

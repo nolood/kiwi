@@ -15,6 +15,7 @@ type ProfileUpdate struct {
 	Gender    *string
 	About     *string
 	PhotoId   *string
+	Location  *string
 	Longitude *float64
 	Latitude  *float64
 }

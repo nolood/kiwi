@@ -26,6 +26,7 @@ type profilesTable struct {
 	PhotoID   postgres.ColumnString
 	About     postgres.ColumnString
 	IsActive  postgres.ColumnBool
+	Location  postgres.ColumnString
 	Latitude  postgres.ColumnFloat
 	Longitude postgres.ColumnFloat
 
@@ -77,10 +78,11 @@ func newProfilesTableImpl(schemaName, tableName, alias string) profilesTable {
 		PhotoIDColumn   = postgres.StringColumn("photo_id")
 		AboutColumn     = postgres.StringColumn("about")
 		IsActiveColumn  = postgres.BoolColumn("is_active")
+		LocationColumn  = postgres.StringColumn("location")
 		LatitudeColumn  = postgres.FloatColumn("latitude")
 		LongitudeColumn = postgres.FloatColumn("longitude")
-		allColumns      = postgres.ColumnList{IDColumn, UserIDColumn, UserTgIDColumn, NameColumn, AgeColumn, GenderColumn, PhotoIDColumn, AboutColumn, IsActiveColumn, LatitudeColumn, LongitudeColumn}
-		mutableColumns  = postgres.ColumnList{UserIDColumn, UserTgIDColumn, NameColumn, AgeColumn, GenderColumn, PhotoIDColumn, AboutColumn, IsActiveColumn, LatitudeColumn, LongitudeColumn}
+		allColumns      = postgres.ColumnList{IDColumn, UserIDColumn, UserTgIDColumn, NameColumn, AgeColumn, GenderColumn, PhotoIDColumn, AboutColumn, IsActiveColumn, LocationColumn, LatitudeColumn, LongitudeColumn}
+		mutableColumns  = postgres.ColumnList{UserIDColumn, UserTgIDColumn, NameColumn, AgeColumn, GenderColumn, PhotoIDColumn, AboutColumn, IsActiveColumn, LocationColumn, LatitudeColumn, LongitudeColumn}
 	)
 
 	return profilesTable{
@@ -96,6 +98,7 @@ func newProfilesTableImpl(schemaName, tableName, alias string) profilesTable {
 		PhotoID:   PhotoIDColumn,
 		About:     AboutColumn,
 		IsActive:  IsActiveColumn,
+		Location:  LocationColumn,
 		Latitude:  LatitudeColumn,
 		Longitude: LongitudeColumn,
 

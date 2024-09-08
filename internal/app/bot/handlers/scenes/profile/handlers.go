@@ -360,13 +360,26 @@ func (s *Scene) handleLocation(next Next) {
 	const op = "bot.handlers.scenes.profile.handleLocation"
 	s.bh.HandleMessage(func(bot *telego.Bot, message telego.Message) {
 
+		session, err := s.services.Session.Get(message.From.ID)
+		if err != nil {
+			s.log.Error(op, zap.Error(err))
+		}
 		chatId := message.From.ID
 
 		if message.Location != nil {
-			err := s.services.Profile.UpdateProfile(chatId, userdto.ProfileUpdate{Longitude: &message.Location.Longitude, Latitude: &message.Location.Latitude})
+			city, _, err := s.services.Cities.FindByCords(message.Location.Latitude, message.Location.Longitude)
 			if err != nil {
 				s.log.Error(op, zap.Error(err))
 			}
+
+			err = s.services.Profile.UpdateProfile(chatId, userdto.ProfileUpdate{Longitude: &message.Location.Longitude, Latitude: &message.Location.Latitude, Location: city.Name})
+			if err != nil {
+				s.log.Error(op, zap.Error(err))
+			}
+
+			next(tu.ID(chatId), session)
+
+			return
 		}
 
 		data, err := s.services.MApp.Services.Location.Search(message.Text)

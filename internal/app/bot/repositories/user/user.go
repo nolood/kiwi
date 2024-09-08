@@ -23,6 +23,7 @@ type Repository interface {
 	UpdateAbout(tgId int64, about string) error
 	UpdatePhoto(tgId int64, about string) error
 	UpdateLocation(tgId int64, latitude *float64, longitude *float64) error
+	UpdateCity(tgId int64, city string) error
 }
 
 type repository struct {
@@ -188,6 +189,19 @@ func (r *repository) UpdatePhoto(tgId int64, newValue string) error {
 	const op = "bot.repositories.user.UpdatePhoto"
 
 	stmt := Profiles.UPDATE(Profiles.PhotoID).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tgId)))
+	_, err := stmt.Exec(r.db)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *repository) UpdateCity(tgId int64, newValue string) error {
+	const op = "bot.repositories.user.UpdateCity"
+
+	stmt := Profiles.UPDATE(Profiles.Location).SET(newValue).WHERE(Profiles.UserTgID.EQ(Int64(tgId)))
+
 	_, err := stmt.Exec(r.db)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)

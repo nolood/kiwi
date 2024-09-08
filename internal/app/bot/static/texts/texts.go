@@ -67,3 +67,8 @@ const (
 	ProfileEditLocation = "Изменить местоположение 🗺️"
 	ProfileComplete     = "Начать поиск 🔎"
 )
+
+const (
+	ViewProfile = "Посмотреть профиль 👤"
+	StartFind   = "Начать поиск 🔎"
+)

@@ -17,6 +17,7 @@ type Profiles struct {
 	PhotoID   *string
 	About     *string
 	IsActive  bool
+	Location  *string
 	Latitude  *float64
 	Longitude *float64
 }
